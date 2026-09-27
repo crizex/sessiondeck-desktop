@@ -1,0 +1,53 @@
+{
+  "name": "sessiondeck-desktop",
+  "productName": "SessionDeck",
+  "version": "1.0.0",
+  "description": "Every Claude Code session on your server in one desktop window, one tab each",
+  "main": "main.js",
+  "author": "crizex",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://github.com/crizex/sessiondeck-desktop",
+  "repository": { "type": "git", "url": "https://github.com/crizex/sessiondeck-desktop.git" },
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/",
+    "build": "electron-builder --win nsis"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/addon-webgl": "^0.19.0",
+    "@xterm/xterm": "^6.0.0",
+    "highlight.js": "^11.12.0",
+    "ssh2": "^1.17.0"
+  },
+  "devDependencies": {
+    "electron": "^44.4.5",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "io.github.crizex.sessiondeck",
+    "productName": "SessionDeck",
+    "artifactName": "SessionDeck-Setup-${version}.${ext}",
+    "files": [
+      "main.js",
+      "preload.js",
+      "connection.js",
+      "state.js",
+      "updater.js",
+      "main/**",
+      "server/**",
+      "ui/**",
+      "assets/icon.png",
+      "node_modules/**",
+      "package.json",
+      "!node_modules/cpu-features/**",
+      "!node_modules/ssh2/lib/protocol/crypto/build/**"
+    ],
+    "protocols": [{ "name": "SessionDeck", "schemes": ["sessiondeck"] }],
+    "win": { "target": "nsis", "icon": "assets/icon.png" },
+    "nsis": { "oneClick": true, "perMachine": false, "runAfterFinish": true },
+    "publish": [{ "provider": "github", "owner": "crizex", "repo": "sessiondeck-desktop" }],
+    "npmRebuild": false
+  }
+}

@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="560" viewBox="0 0 1280 560" role="img" aria-label="sessiondeck-desktop: a desktop window with one tab per Claude Code session, one tab glowing because it needs you">
+  <defs>
+    <radialGradient id="glow" cx="70%" cy="30%" r="60%">
+      <stop offset="0" stop-color="#F2B45A" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#F2B45A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="tabglow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#F2B45A" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#F2B45A" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .05 0"/></filter>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#000" flood-opacity=".6"/></filter>
+    <filter id="blur"><feGaussianBlur stdDeviation="10"/></filter>
+    <clipPath id="win"><rect width="600" height="392" rx="14"/></clipPath>
+  </defs>
+  <rect width="1280" height="560" fill="#0B0C0E"/>
+  <rect width="1280" height="560" fill="url(#glow)"/>
+  <rect width="1280" height="560" filter="url(#grain)"/>
+
+  <text x="72" y="92" fill="#8C8F96" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="3">A DESKTOP FOR CLAUDE CODE</text>
+  <text x="66" y="210" fill="#F4F1EA" font-family="Georgia, 'Times New Roman', serif" font-size="112" font-style="italic" letter-spacing="-3">session</text>
+  <text x="66" y="318" fill="#F4F1EA" font-family="Georgia, 'Times New Roman', serif" font-size="112" letter-spacing="-3">deck</text>
+  <text x="310" y="318" fill="#F2B45A" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" letter-spacing="2">desktop</text>
+  <text x="72" y="390" fill="#B9BCC3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22">Every session on your server, one tab each.</text>
+  <text x="72" y="422" fill="#B9BCC3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="22">The one that needs you glows.</text>
+
+  <!-- the window -->
+  <g transform="translate(610 76)" filter="url(#shadow)">
+    <g clip-path="url(#win)">
+      <rect width="600" height="392" fill="#101113"/>
+      <!-- title bar with tabs -->
+      <rect width="600" height="46" fill="#08090A"/>
+      <!-- tab 1: working -->
+      <g transform="translate(12 9)">
+        <circle cx="12" cy="14" r="5" fill="none" stroke="#5ADBC9" stroke-width="1.6" stroke-dasharray="22 10"/>
+        <text x="24" y="19" fill="#8C8F96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13">atlas-api</text>
+      </g>
+      <!-- tab 2: needs you -->
+      <ellipse cx="190" cy="23" rx="92" ry="30" fill="url(#tabglow)" filter="url(#blur)"/>
+      <g transform="translate(118 8)">
+        <rect width="146" height="30" rx="9" fill="#1D1A14" stroke="#F2B45A" stroke-opacity=".85"/>
+        <circle cx="16" cy="15" r="4.5" fill="#F2B45A"/>
+        <circle cx="16" cy="15" r="9" fill="#F2B45A" fill-opacity=".18"/>
+        <text x="30" y="20" fill="#F4F1EA" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600">field-notes</text>
+        <text x="130" y="20" fill="#F2B45A" font-family="ui-monospace, Menlo, monospace" font-size="11" text-anchor="middle">2</text>
+      </g>
+      <!-- tab 3: working, active -->
+      <g transform="translate(276 8)">
+        <rect width="124" height="30" rx="9" fill="#17181B"/>
+        <circle cx="16" cy="15" r="5" fill="none" stroke="#FF8FB1" stroke-width="1.6" stroke-dasharray="22 10"/>
+        <text x="30" y="20" fill="#E6E4DE" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13">pixel-garden</text>
+        <rect x="30" y="26" width="76" height="2" rx="1" fill="#FF8FB1"/>
+      </g>
+      <g transform="translate(412 9)">
+        <circle cx="12" cy="14" r="4" fill="#3A3D44"/>
+        <text x="24" y="19" fill="#6C6F77" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13">ledger-cli</text>
+      </g>
+      <text x="520" y="28" fill="#6C6F77" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16">+</text>
+      <!-- pill above the glowing tab -->
+      <!-- terminal -->
+      <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">
+        <text x="22" y="80" fill="#C9CBD0">&gt; Make the undo history survive a reload.</text>
+        <text x="22" y="108" fill="#C9CBD0">● Update(src/editor/history.ts)</text>
+        <text x="22" y="128" fill="#6C6F77">  ⎿  24 additions, 3 removals</text>
+        <text x="22" y="156" fill="#C9CBD0">● Bash(npm test -- history)</text>
+        <text x="22" y="176" fill="#6FD99A">  ⎿  PASS  12 tests</text>
+        <text x="22" y="204" fill="#FF8FB1">✽ Compiling (48s · 3.1k tokens)</text>
+      </g>
+      <!-- question card -->
+      <g transform="translate(92 234)">
+        <rect width="416" height="136" rx="14" fill="#17181C" stroke="#F2B45A" stroke-opacity=".45"/>
+        <text x="22" y="30" fill="#F2B45A" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" letter-spacing="1.5">FIELD-NOTES · ASKING NOW</text>
+        <text x="22" y="62" fill="#F4F1EA" font-family="Georgia, serif" font-size="22" font-style="italic">Which formats should export keep?</text>
+        <g font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13">
+          <rect x="22" y="84" width="104" height="32" rx="16" fill="#0B0C0E" stroke="#F2B45A" stroke-opacity=".7"/>
+          <rect x="36" y="95" width="10" height="10" rx="2.5" fill="#F2B45A"/>
+          <text x="54" y="105" fill="#F4F1EA">Markdown</text>
+          <rect x="134" y="84" width="82" height="32" rx="16" fill="#0B0C0E" stroke="#3A3D44"/>
+          <rect x="148" y="95" width="10" height="10" rx="2.5" fill="none" stroke="#8C8F96" stroke-width="1.4"/>
+          <text x="166" y="105" fill="#C9CBD0">HTML</text>
+          <rect x="224" y="84" width="74" height="32" rx="16" fill="#0B0C0E" stroke="#F2B45A" stroke-opacity=".7"/>
+          <rect x="238" y="95" width="10" height="10" rx="2.5" fill="#F2B45A"/>
+          <text x="256" y="105" fill="#F4F1EA">PDF</text>
+          <rect x="320" y="84" width="74" height="32" rx="16" fill="#F2B45A"/>
+          <text x="357" y="105" fill="#0B0C0E" font-weight="600" text-anchor="middle">Next</text>
+        </g>
+      </g>
+    </g>
+    <rect width="600" height="392" rx="14" fill="none" stroke="#2A2D33"/>
+  </g>
+  <!-- "needs you" label pointing at the tab -->
+  <g transform="translate(748 30)">
+    <rect width="104" height="28" rx="14" fill="#F2B45A"/>
+    <text x="52" y="19" fill="#0B0C0E" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle">needs you</text>
+    <path d="M52 28 L46 38 L58 38 Z" fill="#F2B45A" transform="rotate(180 52 33)"/>
+  </g>
+
+  <text x="72" y="508" fill="#8C8F96" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" letter-spacing="1">desktop  /  ssh  /  tmux  /  claude</text>
+</svg>

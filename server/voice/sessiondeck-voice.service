@@ -1,0 +1,25 @@
+# Installed by install.sh, which replaces @USER@. Other model: VOICE_MODEL=medium, then systemctl restart.
+# Fixed language instead of auto-detect: add VOICE_LANGUAGE=en (or de, fr, ...) to the Environment line.
+[Unit]
+Description=SessionDeck voice input (faster-whisper)
+After=network.target
+
+[Service]
+User=@USER@
+Group=@USER@
+Environment=VOICE_MODEL=small VOICE_THREADS=4 VOICE_MODELS=/opt/sessiondeck-voice/models
+Environment=VOICE_SOCKET=/run/sessiondeck-voice/sock HF_HUB_OFFLINE=1
+ExecStart=/opt/sessiondeck-voice/venv/bin/python /opt/sessiondeck-voice/service.py
+RuntimeDirectory=sessiondeck-voice
+RuntimeDirectoryMode=0700
+Restart=on-failure
+RestartSec=5
+MemoryMax=1500M
+PrivateNetwork=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

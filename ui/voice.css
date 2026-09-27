@@ -1,0 +1,18 @@
+/* Voice input: pill at the bottom left, made like #compact */
+#voice {
+  position: absolute; z-index: 6; left: 22px; bottom: 22px; display: flex; align-items: center; gap: 10px; padding: 8px 16px 8px 12px;
+  border-radius: 999px; background: #1A1917F2; box-shadow: 0 0 0 1px #FF6B4A66, 0 12px 40px #000; font-size: 12px; color: var(--text);
+  font-variant-numeric: tabular-nums; cursor: pointer; max-width: min(640px, calc(100% - 44px));
+}
+#voice .text { overflow: hidden; white-space: nowrap; }
+#voice .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--glow); }
+#voice .level { width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF1F; overflow: hidden; }
+#voice .level b { display: block; height: 100%; background: var(--glow); transform: scaleX(0); transform-origin: left; transition: transform 80ms linear; }
+#voice:not(.recording) .level { display: none; }
+#voice.recording .dot { animation: voice-pulse 1.2s ease-in-out infinite; box-shadow: 0 0 10px var(--glow); }
+#voice.recognizing .dot { animation: voice-pulse .6s ease-in-out infinite alternate; }
+#voice.done .dot { background: #7CD992; }
+#voice.error { box-shadow: 0 0 0 1px #FF8A7099, 0 12px 40px #000; color: #FFC2B3; }
+#voice.error .dot { background: none; box-shadow: inset 0 0 0 2px #FF8A70; }
+@keyframes voice-pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { #voice .dot { animation: none !important; } }

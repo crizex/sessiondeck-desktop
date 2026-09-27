@@ -1,0 +1,17 @@
+{
+  "connection": {
+    "host": "dev.example.com",
+    "port": 22,
+    "username": "you",
+    "privateKeyPath": "~/.ssh/id_ed25519",
+    "agent": "",
+    "hostKey": ""
+  },
+  "projectsRoot": "~/projects",
+  "claudeCommand": "claude",
+  "webUrl": "",
+  "voice": false,
+  "notifications": true,
+  "fontSize": 14,
+  "snippets": ["continue", "run the tests and fix what fails", "commit and push"]
+}

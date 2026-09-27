@@ -1,0 +1,22 @@
+/* Broadcast: text, snippets, session list with checkboxes */
+#menu.broadcast { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
+.bc-head { display: flex; align-items: center; justify-content: space-between; }
+.bc-head h2 { margin: 0 0 0 2px; font: 600 14px var(--sans); color: var(--bright); }
+#menu.broadcast .bc-all { display: block; width: auto; padding: 4px 10px; font-size: 12px; color: var(--muted); }
+#menu.broadcast textarea { width: 100%; box-sizing: border-box; resize: vertical; padding: 10px 12px; border: 1px solid #FFFFFF1A; border-radius: 8px; background: #0C0C0C; color: var(--bright); font: 14px/1.45 var(--sans); outline: none; }
+#menu.broadcast textarea:focus { border-color: var(--gold); }
+.bc-snippets { display: flex; flex-wrap: wrap; gap: 6px; }
+#menu.broadcast .bc-snippets .chip { display: block; width: auto; padding: 4px 10px; border-radius: 999px; background: #FFFFFF12; font-size: 12px; color: var(--text); }
+.bc-list { display: flex; flex-direction: column; max-height: 36vh; overflow: auto; }
+.bc-session { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 13px; color: var(--text); }
+.bc-session:hover { background: var(--frame); }
+.bc-session input { width: 15px; height: 15px; margin: 0; accent-color: var(--gold); }
+.bc-session span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bc-session small { font: 11px var(--mono); color: var(--muted); }
+#menu.broadcast .buttons { align-items: center; }
+.bc-tip { flex: 1; font-size: 11px; color: var(--muted); }
+#menu.broadcast .buttons button { width: auto; padding: 7px 14px; text-align: center; }
+#menu.broadcast .bc-send { background: var(--gold); color: var(--gold-deep); font-weight: 600; }
+#menu.broadcast .bc-send:hover { background: var(--gold); color: var(--gold-deep); filter: brightness(1.08); }
+#menu.broadcast .bc-send:disabled { opacity: .45; cursor: default; filter: none; }
+.bc-session:has(input:focus-visible), #menu.broadcast button:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
