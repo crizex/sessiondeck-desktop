@@ -114,7 +114,7 @@ async function attach(id) {
 
 function showInPane(side) {
   const p = panes[side];
-  for (const child of [...p.el.children]) store.appendChild(child);
+  for (const child of [...p.el.children]) if (!child.classList.contains('pane-close')) store.appendChild(child);
   if (!p.id) return;
   const t = terminal(p.id);
   p.el.appendChild(t.el);
@@ -179,6 +179,9 @@ function splitWith(id) {
   afterSwitch();
 }
 
+// Take one side out of the split, the other one stays
+const closeSide = side => { focus = side === 'l' ? 'r' : 'l'; unsplit(); };
+
 function unsplit() {
   if (!split) return;
   if (focus === 'r') { panes.l.id = panes.r.id; }
@@ -238,6 +241,8 @@ function drawTabs() {
       b.addEventListener('auxclick', e => { if (e.button === 1) splitWith(id); });
       b.addEventListener('contextmenu', e => { e.preventDefault(); askEnd(id, b); });
       b.addEventListener('dblclick', () => rename(id, b));
+      b.draggable = true;
+      b.addEventListener('dragstart', e => { e.dataTransfer.setData(SESSION_DRAG, id); e.dataTransfer.effectAllowed = 'move'; });
     }
     existing.delete(id);
     tabsEl.appendChild(b);
@@ -253,7 +258,7 @@ function drawTabs() {
     ctx.firstChild.style.width = `${p ?? 0}%`;
     b.title = `${s.cwd}\n${STATE_TEXT[s.state] || ''}` +
       (s.tokensK != null ? `\nContext ${s.tokensK}k of ${State.COMPACT_K}k (${p} %)` : p == null ? '' : `\nContext ${p} % used`) +
-      (b.classList.contains('new') ? '\nNew artifact' : '');
+      (b.classList.contains('new') ? '\nNew artifact' : '') + '\nDrag onto the terminal to open side by side';
     b.setAttribute('aria-current', !view && id === activeId() ? 'page' : 'false');
   });
   for (const b of existing.values()) b.remove();
@@ -548,15 +553,54 @@ pill.addEventListener('click', () => { collapsed = null; drawCard(); cardEl.focu
 const MAX_MB = 100;
 // Otherwise Electron opens a file dropped next to a pane as a page.
 for (const ev of ['dragover', 'drop']) document.addEventListener(ev, e => e.preventDefault());
+// Tab onto a terminal: unsplit, the right half opens it side by side, the left half shows it here;
+// split, it replaces that side. Tab back onto the tab bar: take it out of the split.
+const SESSION_DRAG = 'application/x-sessiondeck';
+const dropMode = (e, p) => (split ? 'replace' : e.clientX > p.el.getBoundingClientRect().left + p.el.offsetWidth / 2 ? 'beside' : 'replace');
+const dropOff = () => { for (const p of Object.values(panes)) p.el.classList.remove('target', 'target-beside'); tabsEl.classList.remove('target'); };
+document.addEventListener('dragend', dropOff);
+tabsEl.addEventListener('dragover', e => {
+  if (!split || !e.dataTransfer.types.includes(SESSION_DRAG)) return;
+  e.preventDefault();
+  tabsEl.classList.add('target');
+});
+tabsEl.addEventListener('dragleave', e => { if (!tabsEl.contains(e.relatedTarget)) tabsEl.classList.remove('target'); });
+tabsEl.addEventListener('drop', e => {
+  const id = e.dataTransfer.getData(SESSION_DRAG);
+  dropOff();
+  if (split && id === panes.r.id) closeSide('r');
+  else if (split && id === panes.l.id) closeSide('l');
+});
 for (const [side, p] of Object.entries(panes)) {
+  const close = document.createElement('button');
+  close.className = 'pane-close'; close.textContent = '×'; close.type = 'button';
+  close.title = 'Take out of split (Ctrl+#)';
+  close.setAttribute('aria-label', 'Take out of split');
+  close.addEventListener('click', () => closeSide(side));
+  p.el.appendChild(close);
+  p.el.addEventListener('dragover', e => {
+    if (!e.dataTransfer.types.includes(SESSION_DRAG)) return;
+    e.preventDefault();
+    const beside = dropMode(e, p) === 'beside';
+    p.el.classList.toggle('target-beside', beside);
+    p.el.classList.toggle('target', !beside);
+  });
+  p.el.addEventListener('drop', e => {
+    const id = e.dataTransfer.getData(SESSION_DRAG);
+    if (!id) return;
+    const mode = dropMode(e, p);
+    dropOff();
+    if (mode === 'beside') splitWith(id); else place(side, id);
+  });
   p.el.addEventListener('dragover', e => {
     if (!e.dataTransfer.types.includes('Files') || !p.id) return;
     e.preventDefault();
     p.el.classList.add('target');
   });
-  p.el.addEventListener('dragleave', e => { if (!p.el.contains(e.relatedTarget)) p.el.classList.remove('target'); });
+  p.el.addEventListener('dragleave', e => { if (!p.el.contains(e.relatedTarget)) p.el.classList.remove('target', 'target-beside'); });
   p.el.addEventListener('drop', async e => {
     e.preventDefault();
+    if (!e.dataTransfer.files.length) return;
     p.el.classList.remove('target');
     const id = p.id, t = terms.get(id);
     if (!id || !t) return;

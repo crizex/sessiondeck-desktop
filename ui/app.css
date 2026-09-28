@@ -83,6 +83,14 @@ kbd { font: 11px var(--mono); }
 .pane.target, .split .pane.target { box-shadow: inset 0 0 0 2px var(--gold), 0 0 0 1px #FFFFFF0A; }
 .split .pane.focus { box-shadow: inset 0 1px 0 #FFFFFF10, 0 0 0 1px var(--c); }
 .pane > div { height: 100%; }
+/* Tab dragged onto a terminal: the gold half shows where the session lands */
+.pane.target-beside::after { content: "Open side by side"; position: absolute; top: 0; right: 0; bottom: 0; width: 50%; display: grid; place-items: center; border-radius: 0 10px 10px 0;
+  background: #FFD76A1F; box-shadow: inset 0 0 0 2px var(--gold); color: var(--gold); font: 600 13px var(--sans); pointer-events: none; z-index: 2; }
+#tabs.target { box-shadow: inset 0 -2px 0 var(--gold); }
+.pane-close { display: none; position: absolute; top: 6px; right: 8px; z-index: 3; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; background: #1A1A1A; color: var(--muted); font-size: 15px; line-height: 1; opacity: .7; }
+.split .pane-close { display: block; }
+.pane-close:hover, .pane-close:focus-visible { opacity: 1; background: var(--frame); color: var(--bright); }
+.pane-close:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
 #preview { flex: 0 0 var(--pv-width, 46%); display: flex; flex-direction: column; border-radius: 10px; overflow: hidden;
   background: var(--term); box-shadow: inset 0 1px 0 #FFFFFF10, 0 0 0 1px #FFFFFF0A; }
 #preview webview { flex: 1; width: 100%; min-height: 0; background: #FFFFFF; }

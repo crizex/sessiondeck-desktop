@@ -43,7 +43,7 @@ you can answer without hunting for the right terminal.
 
 | | |
 |---|---|
-| **A tab per session** | Every tmux session of your SSH user becomes a tab with a full xterm.js terminal. State at a glance: spinner for working, a glowing dot for waiting for you, a context bar that turns warm and hot as the window fills. Split two sessions side by side, rename tabs, give them colors. |
+| **A tab per session** | Every tmux session of your SSH user becomes a tab with a full xterm.js terminal. State at a glance: spinner for working, a glowing dot for waiting for you, a context bar that turns warm and hot as the window fills. Drag a tab onto the terminal to split two sessions side by side, drag it back onto the tab bar or click × to close the split. Rename tabs, give them colors. |
 | **Question cards** | When Claude asks (a choice, a permission prompt, a multi-select question with checkboxes), the options appear on a card over whatever you are doing. Click or press the number; SessionDeck moves the cursor in the session for you. Several open questions queue up. |
 | **Notifications** | "atlas-api is asking", "field-notes is done". Only for tabs you are not looking at, and only once the state is stable, so no noise between two tool calls. `Alt+W` jumps to the next waiting session. |
 | **Search across sessions** | `Ctrl+Shift+F` searches all Claude transcripts of the last 30 days: your prompts and Claude's answers, with the hit marked. Enter jumps into the running session or resumes the conversation in a new tab. `Ctrl+F` searches the full history of the current session, not just the scrollback. |

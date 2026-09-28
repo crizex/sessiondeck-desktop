@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0
+
+- Split view by drag and drop: drag a tab onto the right half of the terminal to open it side by side,
+  onto the left half (or either side of a split) to show it there.
+- Closing a split is now easy with the mouse: each side has a × button, or drag the tab back onto the tab bar.
+  `Ctrl+click` and `Ctrl+#` still work.
+
 ## 1.0.2
 
 - Broadcast: session names are visible again next to their checkboxes.
