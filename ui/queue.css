@@ -6,3 +6,10 @@
 #menu .q-list li span { overflow-wrap: anywhere; }
 #menu .q-list li { display: flex; align-items: start; gap: 8px; justify-content: space-between; }
 #menu.palette .q-remove { flex: none; justify-content: center; width: 24px; height: 24px; padding: 0; color: var(--muted); }
+/* Pool: prompts for the next free session */
+#menu .q-pool li { padding: 6px 8px; border-radius: 7px; background: #6AB8FF14; }
+#menu .q-pool li small { display: block; margin-top: 2px; font: 11px var(--mono); color: var(--muted); }
+#menu .q-check { display: flex; align-items: center; gap: 6px; margin: 0 2px; font: 12px var(--sans); color: var(--muted); cursor: pointer; }
+#menu .q-check input { flex: none; width: auto; margin: 0; padding: 0; accent-color: var(--gold); }
+#menu.palette .q-free { background: #6AB8FF26; color: var(--bright); }
+#menu.palette .q-free:hover { background: #6AB8FF3D; color: var(--bright); }

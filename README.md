@@ -50,7 +50,9 @@ you can answer without hunting for the right terminal.
 | **Timeline** | `Ctrl+Shift+Z` shows every round of a session as a dot: the prompt, the last answer, how many tools ran and every file edit as a diff. |
 | **Live preview** | `Ctrl+Shift+L` shows the web page the session is building, desktop and phone side by side, and reloads it as soon as a file in the project changes. `localhost` addresses on the server are tunneled over SSH. |
 | **Preview panel** | File paths, images, diffs and claude.ai artifact links in the terminal are clickable and open next to the session, with syntax highlighting. `Ctrl+Shift+D` shows the uncommitted changes this session made, even when several sessions share a folder. "Ask to commit" queues a commit prompt for the session. |
-| **Prompt queue** | `Ctrl+Shift+Q` lines up the next prompts for a session. They go out one at a time as soon as it is done, never into a running turn or an open question. The tab shows how many are waiting. |
+| **Prompt queue** | `Ctrl+Shift+Q` lines up the next prompts for a session. They go out one at a time as soon as it is done, never into a running turn or an open question. The tab shows how many are waiting. "To next free" hands a prompt to whichever session in the folder has time first; if none is free after two minutes, SessionDeck starts a new one for it. |
+| **Recap** | `Ctrl+Shift+B` sums up what a session did: duration, prompts, tool calls, tokens, its commits, the files it changed with +/- and what is not committed yet. A short version shows up when you end a session. |
+| **Templates** | "folder \| prompt" lines in the settings show up on top of the `+` menu. One click starts a session there and sends the prompt once Claude is ready. |
 | **Broadcast** | `Ctrl+Shift+R` sends one message ("run the tests", "commit and push") to several sessions at once. Snippets are configurable. |
 | **Command palette** | `Ctrl+K` for everything, with fuzzy search. `Ctrl+Alt+C` brings the window forward from anywhere. |
 | **Voice input** | Optional and off by default: dictate into the prompt with `Ctrl+M`, recognized on your own server with faster-whisper. |
@@ -184,6 +186,8 @@ shows every field.
 | Font size | `14` | Terminal font size. |
 | Snippets | three examples | Quick texts for broadcast. |
 | Commit prompt | `commit and push` | What "Ask to commit" in the diff view queues, for example `commit, push and deploy`. |
+| Templates | empty | One per line, `folder \| prompt`, for example `api \| run the tests and fix what fails`. |
+| Recap when ending | on | Short recap in the End dialog. |
 
 For several profiles side by side, or tests, start the app with `SESSIONDECK_DATA=<folder>` to use
 a different data folder.
@@ -203,6 +207,7 @@ a different data folder.
 | `Ctrl+Shift+L` | Live preview |
 | `Ctrl+Shift+D` | Changes of this session (diff) |
 | `Ctrl+Shift+Q` | Prompt queue |
+| `Ctrl+Shift+B` | Recap of the session |
 | `Ctrl+Shift+R` | Broadcast |
 | `Ctrl+M` | Voice input (when enabled) |
 | `Ctrl+0` | Web page tab |
@@ -253,7 +258,7 @@ The code is small on purpose:
 | `connection.js` | The SSH connection (ssh2): reconnects, host key pinning, SFTP, quoting |
 | `state.js` | Pure logic, shared with the UI: reading Claude's screen, states, notifications, question card |
 | `updater.js` | Updates from GitHub Releases |
-| `main/` | Main-process parts of live preview, search, timeline and voice |
+| `main/` | Main-process parts of live preview, search, timeline, queue, recap and voice |
 | `ui/` | The window: plain HTML, CSS and scripts, no build step |
 | `server/` | Python helpers that run on the server |
 

@@ -637,7 +637,15 @@ menu.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 // "+": project folders below projectsRoot; a typed absolute path that matches nothing is used as is.
 $('#plus').addEventListener('click', async e => {
   const anchor = e.currentTarget;
-  const list = await deck.projects().catch(() => []);
+  const [list, conf] = await Promise.all([deck.projects().catch(() => []), deck.settings().catch(() => ({}))]);
+  const templates = (conf.templates || []).map(line => {
+    const t = State.template(line), b = document.createElement('button');
+    b.type = 'button'; b.className = 'template';
+    b.innerHTML = '<b></b><small></small>';
+    b.firstChild.textContent = t.folder; b.lastChild.textContent = t.prompt || 'no prompt';
+    b.addEventListener('click', () => { closeMenu(); startTemplate(line, conf); });
+    return b;
+  });
   const field = document.createElement('input');
   field.placeholder = 'Search project or type a path';
   field.setAttribute('aria-label', 'Search project');
@@ -658,13 +666,21 @@ $('#plus').addEventListener('click', async e => {
   field.addEventListener('input', draw);
   field.addEventListener('keydown', ev => { if (ev.key === 'Enter') buttons.querySelector('button')?.click(); });
   draw();
-  openMenu(anchor, [field, buttons]);
+  openMenu(anchor, templates.length ? [el('p', 'templates-title', 'Templates'), ...templates, field, buttons] : [field, buttons]);
   field.focus();
 });
 
 async function newSession(p) {
   const created = await deck.create(p).catch(err => { toast(`Session not started: ${err.message}`); });
   if (created?.id) wanted = created.id;
+  return created?.id;
+}
+// Template from the settings: start a session in the folder (relative = below projectsRoot), the prompt goes
+// through the queue as soon as Claude is ready.
+async function startTemplate(line, conf) {
+  const t = State.template(line);
+  const id = await newSession(/^[/~]/.test(t.folder) ? t.folder : `${(conf.projectsRoot || '~').replace(/\/$/, '')}/${t.folder}`);
+  if (id && t.prompt) deck.call('queue:add', id, t.prompt, 15000).catch(e => toast(`Not queued: ${e.message}`));
 }
 
 // Buttons at the top right: everything with a shortcut also works with the mouse.
@@ -702,6 +718,7 @@ async function palette() {
     conf.webUrl && { text: 'Web page', hint: 'Ctrl+0', run: () => showView('web') },
     { text: 'Settings', hint: 'Ctrl+,', run: () => showView('settings') },
     { text: 'Check for updates', hint: 'Settings', run: async () => { showView('settings'); await wait(300); $('#st-check')?.click(); } },
+    ...(conf.templates || []).map(line => ({ text: `Template: ${line}`, hint: 'New session', run: () => startTemplate(line, conf) })),
     ...extra.palette.flatMap(f => f()),
     ...projects.map(p => ({ text: `New session: ${p}`, hint: 'Project', run: () => newSession(p) })),
   ].filter(Boolean);
@@ -758,6 +775,8 @@ function askEnd(id, anchor) {
   row.append(no, yes);
   openMenu(anchor, [p, row]);
   no.focus();
+  // recap.js: short recap above the buttons
+  deck.settings().then(e => { if (e.recapOnEnd && typeof recapShort === 'function' && !menu.hidden) row.before(recapShort(id, closeMenu)); }).catch(() => {});
 }
 
 // ── Keyboard shortcuts ──────────────────────────────────────────────
@@ -883,6 +902,8 @@ async function drawSettings() {
       ${input('webUrl', 'Web page', 'Optional. Shown as the first tab (Ctrl+0), for example a web session manager.', e.webUrl, 'data-name="webUrl" placeholder="https://"')}
       <label class="st-row st-block"><span><b>Snippets</b><small>One text per line. In Ctrl+K under "Insert", typed into the prompt without Enter.</small></span>
         <textarea data-name="snippets" rows="4" spellcheck="false"></textarea></label>
+      <label class="st-row st-block"><span><b>Templates</b><small>One per line: folder | prompt. Shown on top of the + menu, they start a session and send the prompt once it is ready. A relative folder is below the projects folder.</small></span>
+        <textarea data-name="templates" rows="3" spellcheck="false" placeholder="api | run the tests and fix what fails"></textarea></label>
     </div>
     <div class="st-list">
       <h2>App</h2>
@@ -890,11 +911,12 @@ async function drawSettings() {
         <button type="button" class="st-button" id="st-check">Check for updates</button></div>
       ${toggle('autostart', 'Start with Windows', 'Starts hidden in the tray.', e.autostart, !e.packaged)}
       ${toggle('notifications', 'Notifications', 'Tells you when a session waits for you.', e.notifications)}
+      ${toggle('recapOnEnd', 'Recap when ending', 'The End dialog shows duration, commits and files that are not committed yet.', e.recapOnEnd)}
       ${toggle('voice', 'Voice input', 'Needs the optional voice service on the server, see README. Reload after switching.', e.voice)}
       <label class="st-row"><span><b>Terminal font size</b><small>Applies to all sessions at once.</small></span>
         <select data-name="fontSize">${[12, 13, 14, 15, 16, 18].map(n => `<option ${n === e.fontSize ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
     </div>`;
-  settingsEl.querySelector('textarea').value = (e.snippets || []).join('\n');
+  for (const t of settingsEl.querySelectorAll('textarea')) t.value = (e[t.dataset.name] || []).join('\n');
   deck.status().then(([st, info]) => drawStatus(st, info));
 }
 
@@ -908,7 +930,7 @@ settingsEl.addEventListener('change', e => {
   const n = e.target.dataset.name;
   if (!n) return;
   const value = n === 'fontSize' ? Number(e.target.value)
-    : n === 'snippets' ? e.target.value.split('\n').map(t => t.trim()).filter(Boolean)
+    : n === 'snippets' || n === 'templates' ? e.target.value.split('\n').map(t => t.trim()).filter(Boolean)
       : e.target.type === 'checkbox' ? e.target.checked : e.target.value.trim();
   deck.setting(n, value);
   if (n === 'fontSize') setFontSize(value);

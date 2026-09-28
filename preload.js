@@ -1,7 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 const on = channel => fn => ipcRenderer.on(channel, (_e, ...a) => fn(...a));
-const MODULE = /^(voice|live|search|timeline|queue):[\w-]+$/;
+const MODULE = /^(voice|live|search|timeline|queue|recap):[\w-]+$/;
 const allowed = c => { if (!MODULE.test(c)) throw new Error(`Channel ${c} not allowed`); return c; };
 
 contextBridge.exposeInMainWorld('deck', {

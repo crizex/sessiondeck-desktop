@@ -26,6 +26,8 @@ const DEFAULTS = {
   voice: false, notifications: true, fontSize: 14,
   snippets: ['continue', 'run the tests and fix what fails', 'commit and push'],
   commitPrompt: 'commit and push', // "Ask to commit" in the diff view queues this
+  templates: [], // "folder | prompt" per line, see State.template
+  recapOnEnd: true, // short recap in the End dialog
 };
 let settings = structuredClone(DEFAULTS);
 function loadSettings() {
@@ -270,7 +272,7 @@ ipcMain.handle('status', () => [conn.status, conn.info]);
 
 // Feature modules in main/<name>.js; their channels are "<name>:<what>" (see preload.js).
 const context = { ipcMain, conn, q, send, app, session, fs, path, sessionById, transcript, createSession, settings: () => settings, sessionsNow: () => sessions };
-for (const m of ['voice', 'live', 'search', 'timeline', 'queue']) require(`./main/${m}`)(context);
+for (const m of ['voice', 'live', 'search', 'timeline', 'queue', 'recap']) require(`./main/${m}`)(context);
 
 // ── Start ───────────────────────────────────────────────────────────
 

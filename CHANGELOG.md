@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.0
+
+- Queue: "To next free" hands a prompt to the first session that has been calm for a minute and has nothing
+  queued of its own, optionally only sessions in the same folder. If none is free after two minutes, SessionDeck
+  starts a new session there and the prompt goes out once Claude is ready (checkbox, on by default).
+- Recap (`Ctrl+Shift+B`, button or `Ctrl+K`): duration, prompts, tool calls and tokens of a session, its commits
+  (found by file, commit message or hash in the output), the files it changed with +/- and what is not committed
+  yet, with "Ask to commit". The End dialog shows a short version, which can be turned off in Settings.
+- Templates: lines like `api | run the tests` in Settings show up on top of the `+` menu and in `Ctrl+K`.
+  A click starts a session in that folder and queues the prompt until Claude is ready.
+- The `+` key in the empty screen no longer sits on its own grey line.
+
 ## 1.2.2
 
 - Diff view: "Ask to commit" puts a commit prompt into the session's queue. It goes out as soon as the

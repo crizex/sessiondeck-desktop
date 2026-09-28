@@ -206,3 +206,37 @@ test('due: never while working, asking, paused or for sessions without a queue',
   assert.deepStrictEqual(r.send, []);
   assert.strictEqual(r.memo.n, undefined);
 });
+
+test('due: a pool prompt goes to the first matching session that has been calm long enough', () => {
+  const pool = [{ text: 'p1', folder: '/a' }, { text: 'p2', folder: null }, { text: 'p3', folder: '/a' }];
+  const list = [s('x', 'waiting', { tmux: 'tx', cwd: '/b' }), s('y', 'waiting', { tmux: 'ty', cwd: '/a' }), s('z', 'waiting', { tmux: 'tz', cwd: '/a' })];
+  let memo = {}, r;
+  for (let i = 0; i < z.POOL_STABLE - 1; i++) { r = z.due(memo, list, {}, new Set(), i, pool); memo = r.memo; assert.deepStrictEqual(r.send, [], `poll ${i}`); }
+  r = z.due(memo, list, {}, new Set(), 100, pool);
+  // x (folder /b) only takes p2 without a folder, y and z share the /a prompts in order
+  assert.deepStrictEqual(r.send, [
+    { id: 'x', tmux: 'tx', text: 'p2', pool: pool[1] },
+    { id: 'y', tmux: 'ty', text: 'p1', pool: pool[0] },
+    { id: 'z', tmux: 'tz', text: 'p3', pool: pool[2] },
+  ]);
+});
+
+test('due: own queue first, no pool prompt while working, asking or paused', () => {
+  const pool = [{ text: 'p', folder: null }];
+  const run = (list, own = {}, paused = new Set()) => {
+    let memo = {}, r;
+    for (let i = 0; i < z.POOL_STABLE; i++) { r = z.due(memo, list, own, paused, i, pool); memo = r.memo; }
+    return r.send;
+  };
+  assert.deepStrictEqual(run([s('a', 'working', { tmux: 'ta' })]), []);
+  assert.deepStrictEqual(run([s('a', 'waiting', { tmux: 'ta', question })]), []);
+  assert.deepStrictEqual(run([s('a', 'waiting', { tmux: 'ta' })], {}, new Set(['ta'])), []);
+  // a has its own queue (sent earlier, lock running): the pool prompt goes to b
+  assert.deepStrictEqual(run([s('a', 'waiting', { tmux: 'ta' }), s('b', 'idle', { tmux: 'tb' })], { a: ['own'] }).map(x => [x.id, x.text]), [['b', 'p']]);
+});
+
+test('template: "folder | prompt", no bar means no prompt', () => {
+  assert.deepStrictEqual(z.template('api | run the tests'), { folder: 'api', prompt: 'run the tests' });
+  assert.deepStrictEqual(z.template(' web '), { folder: 'web', prompt: '' });
+  assert.deepStrictEqual(z.template('a | b | c'), { folder: 'a', prompt: 'b | c' });
+});

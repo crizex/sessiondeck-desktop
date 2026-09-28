@@ -240,24 +240,36 @@ function option(o) {
 // Which queued prompts go out now. A session must be calm (not working, no open question) for STABLE
 // polls in a row, and gets at most one prompt per LOCK_MS, so a prompt is never sent twice into one pause.
 const LOCK_MS = 20000;
-function due(memo, sessions, queue, paused, now) {
-  const next = {}, send = [];
+// pool: prompts for the next free session [{ text, folder }]. Only sessions without an own queue get one, and only
+// after POOL_STABLE calm polls (about a minute), so a session you are still reading is not taken over.
+const POOL_STABLE = 30;
+function due(memo, sessions, queue, paused, now, pool = []) {
+  const next = {}, send = [], taken = new Set();
   for (const s of sessions) {
-    if (!queue[s.id]?.length) continue;
+    const own = queue[s.id]?.length;
+    if (!own && !pool.length) continue;
     const a = memo[s.id] || { calm: 0, sent: -Infinity };
     const e = { calm: s.state !== 'working' && !s.question ? a.calm + 1 : 0, sent: a.sent };
-    if (e.calm >= STABLE && !paused.has(s.tmux) && now - e.sent > LOCK_MS) {
-      send.push({ id: s.id, tmux: s.tmux, text: queue[s.id][0] });
-      e.calm = 0; e.sent = now;
-    }
     next[s.id] = e;
+    if (paused.has(s.tmux) || now - e.sent <= LOCK_MS) continue;
+    const p = !own && e.calm >= POOL_STABLE && pool.find(x => !taken.has(x) && (!x.folder || x.folder === s.cwd));
+    if (own && e.calm >= STABLE) send.push({ id: s.id, tmux: s.tmux, text: queue[s.id][0] });
+    else if (p) { taken.add(p); send.push({ id: s.id, tmux: s.tmux, text: p.text, pool: p }); }
+    else continue;
+    e.calm = 0; e.sent = now;
   }
   return { memo: next, send };
 }
 
+// Starter template "folder | prompt"; without a bar only the folder.
+function template(line) {
+  const i = line.indexOf('|');
+  return i < 0 ? { folder: line.trim(), prompt: '' } : { folder: line.slice(0, i).trim(), prompt: line.slice(i + 1).trim() };
+}
+
 const State = {
   readPane, snapshot, WAITING_MS, readMenu, option, PALETTE, COMPACT_K, contextPercent, matches, splitDiff, search,
-  color, title, orderTabs, nextWaiting, notifications, card, newer, backoff, due,
+  color, title, orderTabs, nextWaiting, notifications, card, newer, backoff, due, POOL_STABLE, template,
 };
 // Also usable in the renderer via <script> (no module there).
 if (typeof module === 'object') module.exports = State; else window.State = State;

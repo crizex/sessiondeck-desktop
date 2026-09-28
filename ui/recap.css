@@ -1,0 +1,24 @@
+/* Recap: numbers on top, then uncommitted files, commits, files */
+.rc-numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 12px 0 4px; }
+.rc-number { padding: 10px 12px; border-radius: 8px; background: #FFFFFF08; }
+.rc-number b { display: block; font: 600 22px/1.2 var(--sans); font-variant-numeric: tabular-nums; color: var(--bright); }
+.rc-number small { color: var(--muted); font-size: 12px; }
+#pv-content.recap h3 { margin: 18px 0 6px; font-size: 12px; font-weight: 500; color: var(--muted); }
+.rc-open { margin-top: 12px; padding: 10px 12px; border-left: 2px solid var(--gold); border-radius: 0 8px 8px 0; background: #FFD76A12; }
+.rc-open-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; color: var(--gold); }
+.rc-open .pv-file { display: block; }
+.rc-commit { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: baseline; padding: 5px 4px; border-bottom: 1px solid var(--frame); }
+.rc-commit code { font: 12px var(--mono); color: var(--gold); }
+.rc-commit span { overflow-wrap: anywhere; color: var(--text); }
+.rc-commit small { font: 11px var(--mono); color: var(--muted); white-space: nowrap; }
+.rc-file { display: flex; align-items: center; gap: 8px; padding: 2px 0; font: 12px var(--mono); }
+.rc-file .pv-file { flex: 1; text-align: left; overflow-wrap: anywhere; }
+.rc-file .plus { color: #7EF0B8; }
+.rc-file .minus { color: #FF8F8F; }
+.rc-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; color: var(--text); }
+.rc-text.question { padding: 8px 10px; border-left: 2px solid var(--gold); background: #FFFFFF08; color: var(--bright); }
+
+/* Short version in the End dialog */
+.rc-short { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0 10px 10px; font-size: 12px; color: var(--muted); }
+.rc-short .rc-warning { flex-basis: 100%; color: var(--gold); font-weight: 600; }
+#menu .rc-short .rc-more { display: inline; width: auto; padding: 2px 6px; color: var(--bright); text-decoration: underline; font-size: 12px; }

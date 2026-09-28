@@ -1,7 +1,7 @@
 # Runs on the server (python3 -c, sent by the app): the Claude transcript of a session as readable text.
 # Arguments: cwd of the session, samples (base64, lines from the visible screen, to find the right file
-# when several sessions share a folder), optionally "rounds" for the timeline.
-import base64, glob, json, os, re, sys
+# when several sessions share a folder), optionally a mode: "rounds" (timeline), "touched" (diff), "recap".
+import base64, glob, json, os, re, subprocess, sys
 
 MAX_READ = 30_000_000  # only read the end of very large transcripts
 MAX_OUT = 2_000_000    # at most this much text goes to the app
@@ -97,6 +97,94 @@ def rounds(lines):
     return out[-300:]
 
 
+def line_count(t):
+    return len(t[:-1].split('\n') if t.endswith('\n') else t.split('\n')) if t else 0
+
+
+def git(folder, *args):
+    try:
+        return subprocess.run(['git', '-C', folder, *args], capture_output=True, text=True, timeout=10, check=True).stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def repo_of(path):
+    d = path
+    while d and not os.path.isdir(d):
+        d = os.path.dirname(d)
+    top = git(d, 'rev-parse', '--show-toplevel') if d else None
+    return top.strip() if top else None
+
+
+def git_state(paths, since, cwd, messages, hashes):
+    """Commits since the session started and files not committed yet. A commit belongs to the session if it touches
+    one of its files, its message is in one of its git commit commands, or its hash shows up in a tool output.
+    Known limit: commits of other sessions on the same files count too, the session id is not in the commit."""
+    repos = {}
+    for p in [cwd, *paths]:
+        top = repo_of(os.path.dirname(p) if p != cwd else p)
+        if top:
+            repos.setdefault(top, [])
+            if p != cwd:
+                repos[top].append(p)
+    commits, uncommitted = [], []
+    for top, ps in repos.items():
+        rel = {os.path.relpath(p, top) for p in ps}
+        for block in (git(top, 'log', f'--since={since}', '--format=%x01%h%x09%aI%x09%s', '--name-only') or '').split('\x01')[1:] if since else []:
+            head, *names = block.strip('\n').split('\n')
+            h, time, text = head.split('\t', 2)
+            if rel.intersection(names) or text in messages or any(x.startswith(h) or h.startswith(x) for x in hashes):
+                commits.append({'hash': h, 'time': time, 'text': text, 'repo': os.path.basename(top)})
+        status = (git(top, 'status', '--porcelain', '-z', '--', *rel) or '').split('\0') if rel else []
+        uncommitted += [os.path.join(top, e[3:]) for e in status if len(e) > 3]
+    return sorted(commits, key=lambda c: c['time']), uncommitted
+
+
+COMMIT_MSG = re.compile(r"""\bcommit\b[^\n]*?\s-[a-zA-Z]*m\s*(?:"([^"\n]+)|'([^'\n]+)|"?\$\(cat <<-?'?\w+'?\n([^\n]+))""")
+COMMIT_OUT = re.compile(r'^\[[^\]\s]+(?: \([^)]*\))? ([0-9a-f]{7,40})\]', re.M)
+
+
+def recap(cwd, lines):
+    """Facts about the session: duration, rounds, output tokens, files with +/-, commits, what is not committed."""
+    rs, times, output, ids, messages, hashes = rounds(lines), [], 0, set(), set(), set()
+    for line in lines:
+        try:
+            d = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(d, dict) or d.get('isSidechain'):
+            continue
+        if d.get('timestamp'):
+            times.append(d['timestamp'])
+        m = d.get('message') or {}
+        # One answer often spans several lines with the same id and the same usage
+        if d.get('type') == 'assistant' and isinstance(m.get('usage'), dict) and m.get('id') not in ids:
+            ids.add(m.get('id'))
+            output += m['usage'].get('output_tokens') or 0
+        for b in m.get('content') if isinstance(m.get('content'), list) else []:
+            if not isinstance(b, dict):
+                continue
+            if b.get('type') == 'tool_use' and b.get('name') == 'Bash':
+                for t in COMMIT_MSG.findall(str((b.get('input') or {}).get('command', ''))):
+                    messages.add(next(x for x in t if x).strip())
+            elif b.get('type') == 'tool_result':
+                c = b.get('content')
+                c = c if isinstance(c, str) else ' '.join(x.get('text', '') for x in c or [] if isinstance(x, dict))
+                hashes.update(COMMIT_OUT.findall(c))
+    files = {}
+    for r in rs:
+        for f in r['files']:
+            e = files.setdefault(f['path'], {'path': f['path'], 'plus': 0, 'minus': 0})
+            for t in f['parts']:
+                e['plus'] += line_count(t['new'])
+                e['minus'] += line_count(t['old'])
+    start = rs[0]['time'] if rs else (times[0] if times else None)
+    commits, uncommitted = git_state(list(files), start, cwd, messages, hashes)
+    return {'start': start, 'end': times[-1] if times else None, 'rounds': len(rs), 'tools': sum(r['tools'] for r in rs),
+            'output': output, 'files': list(files.values()), 'commits': commits, 'uncommitted': uncommitted,
+            'answer': next((r['answer'] for r in reversed(rs) if r['answer']), '')}
+
+
 def main():
     cwd = sys.argv[1]
     samples = [p for p in base64.b64decode(sys.argv[2]).decode('utf-8', 'replace').split('\n') if p] if len(sys.argv) > 2 else []
@@ -114,6 +202,9 @@ def main():
         lines = lines[1:]  # first line is cut
     if len(sys.argv) > 3 and sys.argv[3] == 'touched':
         sys.stdout.write('\n'.join(dict.fromkeys(f['path'] for r in rounds(lines) for f in r['files'])))
+        return
+    if len(sys.argv) > 3 and sys.argv[3] == 'recap':
+        sys.stdout.write(json.dumps(recap(cwd, lines), ensure_ascii=False))
         return
     if len(sys.argv) > 3 and sys.argv[3] == 'rounds':
         lst = rounds(lines)

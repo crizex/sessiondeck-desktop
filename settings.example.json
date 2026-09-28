@@ -14,5 +14,7 @@
   "notifications": true,
   "fontSize": 14,
   "snippets": ["continue", "run the tests and fix what fails", "commit and push"],
-  "commitPrompt": "commit and push"
+  "commitPrompt": "commit and push",
+  "templates": ["api | run the tests and fix what fails"],
+  "recapOnEnd": true
 }

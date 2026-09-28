@@ -47,6 +47,7 @@ function openEntry(e, id) {
   else if (e.kind === 'diff') diffPreview(id);
   else if (e.kind === 'live') livePreview(id); // live.js
   else if (e.kind === 'timeline') timeline(id); // timeline.js
+  else if (e.kind === 'recap') recap(id); // recap.js
 }
 
 // ── History per session: the last previews as chips ──
@@ -62,7 +63,7 @@ function rememberEntry(id, e) {
   for (const k of Object.keys(all)) if (k !== id && !sessionById(k)) delete all[k];
   remember('pv-history', all);
 }
-const chipText = e => ({ artifact: 'Artifact', diff: 'Diff', live: 'Live', timeline: 'Timeline' }[e.kind] || e.target.split('/').pop() + (e.line ? `:${e.line}` : ''));
+const chipText = e => ({ artifact: 'Artifact', diff: 'Diff', live: 'Live', timeline: 'Timeline', recap: 'Recap' }[e.kind] || e.target.split('/').pop() + (e.line ? `:${e.line}` : ''));
 function drawHistory(current) {
   const list = historyOf(panelId);
   pvHistory.hidden = list.length < 2;
