@@ -10,7 +10,7 @@
 .bc-list { display: flex; flex-direction: column; max-height: 36vh; overflow: auto; }
 .bc-session { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 13px; color: var(--text); }
 .bc-session:hover { background: var(--frame); }
-.bc-session input { width: 15px; height: 15px; margin: 0; accent-color: var(--gold); }
+#menu.broadcast .bc-session input { flex: none; width: 15px; height: 15px; margin: 0; padding: 0; accent-color: var(--gold); }
 .bc-session span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bc-session small { font: 11px var(--mono); color: var(--muted); }
 #menu.broadcast .buttons { align-items: center; }

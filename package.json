@@ -1,14 +1,17 @@
 {
   "name": "sessiondeck-desktop",
   "productName": "SessionDeck",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Every Claude Code session on your server in one desktop window, one tab each",
   "main": "main.js",
   "author": "crizex",
   "license": "MIT",
   "private": true,
   "homepage": "https://github.com/crizex/sessiondeck-desktop",
-  "repository": { "type": "git", "url": "https://github.com/crizex/sessiondeck-desktop.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/crizex/sessiondeck-desktop.git"
+  },
   "scripts": {
     "start": "electron .",
     "test": "node --test test/",
@@ -44,10 +47,30 @@
       "!node_modules/cpu-features/**",
       "!node_modules/ssh2/lib/protocol/crypto/build/**"
     ],
-    "protocols": [{ "name": "SessionDeck", "schemes": ["sessiondeck"] }],
-    "win": { "target": "nsis", "icon": "assets/icon.png" },
-    "nsis": { "oneClick": true, "perMachine": false, "runAfterFinish": true },
-    "publish": [{ "provider": "github", "owner": "crizex", "repo": "sessiondeck-desktop" }],
+    "protocols": [
+      {
+        "name": "SessionDeck",
+        "schemes": [
+          "sessiondeck"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "runAfterFinish": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "crizex",
+        "repo": "sessiondeck-desktop"
+      }
+    ],
     "npmRebuild": false
   }
 }

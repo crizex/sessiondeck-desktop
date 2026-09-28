@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- Broadcast: session names are visible again next to their checkboxes.
+
 ## 1.0.1
 
 - README: short demo animation of a multi-select question answered from the question card.
