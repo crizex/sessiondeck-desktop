@@ -50,6 +50,7 @@ you can answer without hunting for the right terminal.
 | **Timeline** | `Ctrl+Shift+Z` shows every round of a session as a dot: the prompt, the last answer, how many tools ran and every file edit as a diff. |
 | **Live preview** | `Ctrl+Shift+L` shows the web page the session is building, desktop and phone side by side, and reloads it as soon as a file in the project changes. `localhost` addresses on the server are tunneled over SSH. |
 | **Preview panel** | File paths, images, diffs and claude.ai artifact links in the terminal are clickable and open next to the session, with syntax highlighting. `Ctrl+Shift+D` shows the uncommitted changes of the project. |
+| **Prompt queue** | `Ctrl+Shift+Q` lines up the next prompts for a session. They go out one at a time as soon as it is done, never into a running turn or an open question. The tab shows how many are waiting. |
 | **Broadcast** | `Ctrl+Shift+R` sends one message ("run the tests", "commit and push") to several sessions at once. Snippets are configurable. |
 | **Command palette** | `Ctrl+K` for everything, with fuzzy search. `Ctrl+Alt+C` brings the window forward from anywhere. |
 | **Voice input** | Optional and off by default: dictate into the prompt with `Ctrl+M`, recognized on your own server with faster-whisper. |
@@ -199,6 +200,7 @@ a different data folder.
 | `Ctrl+Shift+Z` | Timeline |
 | `Ctrl+Shift+L` | Live preview |
 | `Ctrl+Shift+D` | Changes of this session (diff) |
+| `Ctrl+Shift+Q` | Prompt queue |
 | `Ctrl+Shift+R` | Broadcast |
 | `Ctrl+M` | Voice input (when enabled) |
 | `Ctrl+0` | Web page tab |

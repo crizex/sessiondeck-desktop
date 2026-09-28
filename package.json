@@ -1,7 +1,7 @@
 {
   "name": "sessiondeck-desktop",
   "productName": "SessionDeck",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Every Claude Code session on your server in one desktop window, one tab each",
   "main": "main.js",
   "author": "crizex",

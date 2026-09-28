@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0
+
+- Prompt queue per session: line up the next prompts with `Ctrl+Shift+Q` or the queue button. The app sends
+  them one at a time as soon as the session is done (never while it works or while a question is open).
+  A small counter on the tab shows how many are waiting, × removes one. The queue survives a restart.
+
 ## 1.1.0
 
 - Split view by drag and drop: drag a tab onto the right half of the terminal to open it side by side,

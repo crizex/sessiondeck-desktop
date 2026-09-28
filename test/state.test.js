@@ -183,3 +183,26 @@ test('snapshot: waiting after a change, idle after WAITING_MS, artifact remember
   r = z.snapshot(raw('scrolled away'), r.glances, 2000 + z.WAITING_MS + 1);
   assert.strictEqual(r.sessions[0].state, 'idle');
 });
+
+test('due: sends after STABLE calm polls, once per lock', () => {
+  const q = { a: ['one', 'two'] };
+  let r = { memo: {} };
+  for (let i = 0; i < 2; i++) r = z.due(r.memo, [s('a', 'waiting', { tmux: 'a' })], q, new Set(), 1000 + i);
+  assert.deepStrictEqual(r.send, []);
+  r = z.due(r.memo, [s('a', 'waiting', { tmux: 'a' })], q, new Set(), 1002);
+  assert.deepStrictEqual(r.send, [{ id: 'a', tmux: 'a', text: 'one' }]);
+  for (let i = 0; i < 3; i++) r = z.due(r.memo, [s('a', 'idle', { tmux: 'a' })], q, new Set(), 2000 + i);
+  assert.deepStrictEqual(r.send, [], 'still inside the lock');
+  r = z.due(r.memo, [s('a', 'idle', { tmux: 'a' })], q, new Set(), 1002 + 20001);
+  assert.strictEqual(r.send.length, 1);
+});
+
+test('due: never while working, asking, paused or for sessions without a queue', () => {
+  const q = { w: ['x'], f: ['x'], p: ['x'] };
+  const list = [s('w', 'working', { tmux: 'w' }), s('f', 'waiting', { tmux: 'f', question: { text: '?' } }),
+    s('p', 'waiting', { tmux: 'p' }), s('n', 'waiting', { tmux: 'n' })];
+  let r = { memo: {} };
+  for (let i = 0; i < 5; i++) r = z.due(r.memo, list, q, new Set(['p']), i);
+  assert.deepStrictEqual(r.send, []);
+  assert.strictEqual(r.memo.n, undefined);
+});

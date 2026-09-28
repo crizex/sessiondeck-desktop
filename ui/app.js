@@ -236,7 +236,7 @@ function drawTabs() {
     if (!b) {
       b = document.createElement('button');
       b.type = 'button'; b.className = 'tab'; b.dataset.id = id;
-      b.innerHTML = '<span class="icon"></span><span class="name"></span><span class="kbd"></span><span class="ctx"><i></i></span>';
+      b.innerHTML = '<span class="icon"></span><span class="name"></span><span class="kbd"></span><span class="q" hidden></span><span class="ctx"><i></i></span>';
       b.addEventListener('click', e => (e.ctrlKey ? splitWith(id) : place(focus, id)));
       b.addEventListener('auxclick', e => { if (e.button === 1) splitWith(id); });
       b.addEventListener('contextmenu', e => { e.preventDefault(); askEnd(id, b); });
@@ -251,6 +251,8 @@ function drawTabs() {
       (split && id === panes.l.id ? ' left' : '') + (split && id === panes.r.id ? ' right' : '') + (artifactNew(s) ? ' new' : '');
     b.querySelector('.name').textContent = titleOf(id);
     b.querySelector('.kbd').textContent = i < 9 ? i + 1 : '';
+    const n = typeof queueCount === 'function' ? queueCount(id) : 0, qEl = b.querySelector('.q');
+    qEl.hidden = !n; qEl.textContent = n; qEl.title = `${n} queued`;
     // Context bar: measured against State.COMPACT_K, not the whole window.
     const ctx = b.querySelector('.ctx'), p = State.contextPercent(s);
     ctx.hidden = p == null;

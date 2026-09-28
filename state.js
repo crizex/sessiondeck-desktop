@@ -235,9 +235,29 @@ function option(o) {
   return { n: o.n, text, box: !!m, checked: m?.[1] === '✔', free: !!o.free || (!!m && /^Type something\.?$/.test(text)) };
 }
 
+// ── Prompt queue ────────────────────────────────────────────────────
+
+// Which queued prompts go out now. A session must be calm (not working, no open question) for STABLE
+// polls in a row, and gets at most one prompt per LOCK_MS, so a prompt is never sent twice into one pause.
+const LOCK_MS = 20000;
+function due(memo, sessions, queue, paused, now) {
+  const next = {}, send = [];
+  for (const s of sessions) {
+    if (!queue[s.id]?.length) continue;
+    const a = memo[s.id] || { calm: 0, sent: -Infinity };
+    const e = { calm: s.state !== 'working' && !s.question ? a.calm + 1 : 0, sent: a.sent };
+    if (e.calm >= STABLE && !paused.has(s.tmux) && now - e.sent > LOCK_MS) {
+      send.push({ id: s.id, tmux: s.tmux, text: queue[s.id][0] });
+      e.calm = 0; e.sent = now;
+    }
+    next[s.id] = e;
+  }
+  return { memo: next, send };
+}
+
 const State = {
   readPane, snapshot, WAITING_MS, readMenu, option, PALETTE, COMPACT_K, contextPercent, matches, splitDiff, search,
-  color, title, orderTabs, nextWaiting, notifications, card, newer, backoff,
+  color, title, orderTabs, nextWaiting, notifications, card, newer, backoff, due,
 };
 // Also usable in the renderer via <script> (no module there).
 if (typeof module === 'object') module.exports = State; else window.State = State;

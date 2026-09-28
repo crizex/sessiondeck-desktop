@@ -263,8 +263,8 @@ ipcMain.handle('connect', (_e, c) => {
 ipcMain.handle('status', () => [conn.status, conn.info]);
 
 // Feature modules in main/<name>.js; their channels are "<name>:<what>" (see preload.js).
-const context = { ipcMain, conn, q, send, app, session, fs, path, sessionById, transcript, createSession, settings: () => settings };
-for (const m of ['voice', 'live', 'search', 'timeline']) require(`./main/${m}`)(context);
+const context = { ipcMain, conn, q, send, app, session, fs, path, sessionById, transcript, createSession, settings: () => settings, sessionsNow: () => sessions };
+for (const m of ['voice', 'live', 'search', 'timeline', 'queue']) require(`./main/${m}`)(context);
 
 // ── Start ───────────────────────────────────────────────────────────
 
