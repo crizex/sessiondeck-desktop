@@ -49,7 +49,7 @@ you can answer without hunting for the right terminal.
 | **Search across sessions** | `Ctrl+Shift+F` searches all Claude transcripts of the last 30 days: your prompts and Claude's answers, with the hit marked. Enter jumps into the running session or resumes the conversation in a new tab. `Ctrl+F` searches the full history of the current session, not just the scrollback. |
 | **Timeline** | `Ctrl+Shift+Z` shows every round of a session as a dot: the prompt, the last answer, how many tools ran and every file edit as a diff. |
 | **Live preview** | `Ctrl+Shift+L` shows the web page the session is building, desktop and phone side by side, and reloads it as soon as a file in the project changes. `localhost` addresses on the server are tunneled over SSH. |
-| **Preview panel** | File paths, images, diffs and claude.ai artifact links in the terminal are clickable and open next to the session, with syntax highlighting. `Ctrl+Shift+D` shows the uncommitted changes of the project. |
+| **Preview panel** | File paths, images, diffs and claude.ai artifact links in the terminal are clickable and open next to the session, with syntax highlighting. `Ctrl+Shift+D` shows the uncommitted changes this session made, even when several sessions share a folder. |
 | **Prompt queue** | `Ctrl+Shift+Q` lines up the next prompts for a session. They go out one at a time as soon as it is done, never into a running turn or an open question. The tab shows how many are waiting. |
 | **Broadcast** | `Ctrl+Shift+R` sends one message ("run the tests", "commit and push") to several sessions at once. Snippets are configurable. |
 | **Command palette** | `Ctrl+K` for everything, with fuzzy search. `Ctrl+Alt+C` brings the window forward from anywhere. |

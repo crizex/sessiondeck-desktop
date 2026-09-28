@@ -112,6 +112,9 @@ def main():
     lines = tail(pick, MAX_READ).split('\n')
     if os.path.getsize(pick) > MAX_READ:
         lines = lines[1:]  # first line is cut
+    if len(sys.argv) > 3 and sys.argv[3] == 'touched':
+        sys.stdout.write('\n'.join(dict.fromkeys(f['path'] for r in rounds(lines) for f in r['files'])))
+        return
     if len(sys.argv) > 3 and sys.argv[3] == 'rounds':
         lst = rounds(lines)
         # Too big for the app: old rounds without edit texts

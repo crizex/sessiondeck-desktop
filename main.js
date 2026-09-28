@@ -214,7 +214,12 @@ ipcMain.handle('file', async (_e, p, id) => {
   }
   throw new Error('not found');
 });
-ipcMain.handle('diff', (_e, id) => conn.diff(sessionById(id).cwd));
+// Only what this session edited, from its transcript. Without a transcript: the whole folder as before.
+ipcMain.handle('diff', async (_e, id) => {
+  let files;
+  try { files = (await transcript(id, 'touched')).split('\n').filter(Boolean); } catch { return { ...(await conn.diff(sessionById(id).cwd)), all: true }; }
+  return conn.diffFiles(files);
+});
 // Ctrl+F: Claude runs full screen, tmux has little scrollback. So read the session transcript;
 // lines from the screen help to pick the right file when several sessions share a folder.
 const screen = s => conn.exec(`tmux capture-pane -p -J -t ${q(s.tmux)}`).catch(() => '');

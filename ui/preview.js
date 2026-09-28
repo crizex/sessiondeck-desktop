@@ -144,25 +144,27 @@ async function filePreview(p, line, id) {
   pvContent.scrollTop = line ? (line - 8) * LH : 0;
 }
 
-// git diff of the session (working tree against HEAD), collapsible per file.
+// git diff of the files this session edited (working tree against HEAD), collapsible per file.
 async function diffPreview(id) {
   const s = sessionById(id);
   if (!s?.cwd) return;
-  const nr = panelOpen({ kind: 'diff', target: s.cwd }, id, `Changes in ${s.cwd}`);
+  const nr = panelOpen({ kind: 'diff', target: s.cwd }, id, `Changes by ${titleOf(id)}`);
   note('Loading changes');
   let r;
   try { r = await deck.diff(id); } catch (e) { if (nr === pvRun) note(`Diff not loaded: ${errorText(e)}`); return; }
   if (nr !== pvRun) return;
   const files = State.splitDiff(r.diff);
-  if (!files.length && !r.fresh.length) return note('No changes since the last commit.');
+  if (!files.length && !r.fresh.length) return note(r.all ? 'No changes since the last commit.' : 'This session has no uncommitted edits.');
+  // Names are absolute (other repos too); inside the session folder shorter.
+  const short = name => (name.startsWith(s.cwd + '/') ? name.slice(s.cwd.length + 1) : name);
   const fileButton = name => {
-    const b = el('button', 'pv-file', name);
+    const b = el('button', 'pv-file', short(name));
     b.type = 'button';
     b.title = 'Open file';
     b.addEventListener('click', ev => { ev.preventDefault(); filePreview(name, 0, id); });
     return b;
   };
-  const parts = [el('p', 'pv-note', `${files.length} changed, ${r.fresh.length} new files${r.truncated ? ' (truncated)' : ''}`)];
+  const parts = [el('p', 'pv-note', `${files.length} changed, ${r.fresh.length} new files${r.all ? ` in ${s.cwd} (no transcript found)` : ' by this session'}${r.truncated ? ' (truncated)' : ''}`)];
   for (const f of files) {
     const d = el('details');
     d.open = files.length <= 3;

@@ -10,6 +10,13 @@ const { backoff } = require('./state');
 // POSIX single-quote escaping: safe for any content that ends up in a remote shell command.
 const q = s => `'${String(s).replace(/'/g, `'\\''`)}'`;
 // Remote path for the shell: "~/x" expands to the remote home, everything else is quoted literally.
+// Paths on stdin. First the new untracked files, then a marker line, then the diff; the prefixes keep names absolute.
+const DIFF_MARK = '--sessiondeck-diff--';
+const DIFF_FILES = `mapfile -t F
+for f in "\${F[@]}"; do d=$(dirname "$f"); [ -d "$d" ] && [ -n "$(git -C "$d" ls-files --others --exclude-standard -- "$f" 2>/dev/null)" ] && echo "$f"; done
+echo ${DIFF_MARK}
+for f in "\${F[@]}"; do d=$(dirname "$f"); [ -d "$d" ] || continue; top=$(git -C "$d" rev-parse --show-toplevel 2>/dev/null) || continue
+  git -C "$d" -c core.quotePath=false diff HEAD --no-color --src-prefix="a/$top/" --dst-prefix="b/$top/" -- "$f" 2>/dev/null; done | head -c 3000001`;
 const rq = p => (/^~(\/|$)/.test(p) ? `"$HOME"${p.length > 2 ? '/' + q(p.slice(2)) : ''}` : q(p));
 const expandHome = p => String(p || '').replace(/^~(?=$|[\\/])/, os.homedir());
 const fingerprint = key => `SHA256:${crypto.createHash('sha256').update(key).digest('base64').replace(/=+$/, '')}`;
@@ -142,6 +149,15 @@ class Connection extends EventEmitter {
     ]);
     const list = fresh.split('\n').filter(Boolean);
     return { diff: diff.slice(0, 3e6), fresh: list.slice(0, 200), truncated: diff.length > 3e6 || list.length > 200 };
+  }
+
+  // Only the files this session edited (absolute paths from the transcript), each against HEAD of its own repo.
+  // ponytail: edits made through Bash (sed, rm) are not in the list, add when that matters.
+  async diffFiles(files) {
+    const out = await this.exec(`bash -c ${q(DIFF_FILES)}`, files.slice(0, 200).join('\n') + '\n');
+    const i = out.indexOf(DIFF_MARK + '\n');
+    const diff = out.slice(i + DIFF_MARK.length + 1);
+    return { diff: diff.slice(0, 3e6), fresh: out.slice(0, i).split('\n').filter(Boolean), truncated: diff.length > 3e6 || files.length > 200 };
   }
 
   sftp() {

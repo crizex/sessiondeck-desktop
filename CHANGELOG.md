@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+- Diff view (`Ctrl+Shift+D`) shows only the files this session edited, read from its Claude transcript.
+  Sessions sharing a folder (or a monorepo) no longer see each other's changes. Files in other repos the
+  session touched show up too, with their full path. Without a transcript it falls back to the whole folder.
+
 ## 1.2.0
 
 - Prompt queue per session: line up the next prompts with `Ctrl+Shift+Q` or the queue button. The app sends
