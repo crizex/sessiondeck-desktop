@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  <img src="assets/demo.gif" alt="Demo: a background tab asks a multi-select question, it is answered on the question card, and the session carries on" width="100%">
+</p>
+
+<p align="center">
   <a href="#install">Install</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#server-setup">Server setup</a> ·

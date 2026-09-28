@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- README: short demo animation of a multi-select question answered from the question card.
+
 ## 1.0.0
 
 First public release.
