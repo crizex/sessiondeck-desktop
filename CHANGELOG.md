@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1
+
+- Highlights work again: the active tab, the selected row in `Ctrl+K` and the `+` menu, the current search hit,
+  active tool buttons and the settings gear. The styles used a different class name than the code.
+
 ## 1.3.0
 
 - Queue: "To next free" hands a prompt to the first session that has been calm for a minute and has nothing

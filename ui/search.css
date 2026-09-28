@@ -11,7 +11,7 @@
 .sa-info:empty { display: none; }
 .sa-list { flex: 1; min-height: 0; overflow: auto; }
 .sa-hit { display: flex; flex-direction: column; gap: 3px; width: 100%; padding: 9px 12px 10px; border: 0; border-radius: 8px; background: none; text-align: left; color: var(--text); }
-.sa-hit:hover, .sa-hit.an { background: var(--frame); }
+.sa-hit:hover, .sa-hit.on { background: var(--frame); }
 .sa-hit:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 .sa-head { display: flex; align-items: baseline; gap: 10px; font: 11px var(--mono); color: var(--muted); }
 .sa-folder { color: var(--gold); }

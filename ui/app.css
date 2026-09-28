@@ -52,7 +52,7 @@ kbd { font: 11px var(--mono); }
   -webkit-app-region: no-drag;
 }
 .tab:hover { color: var(--text); }
-.tab.an { color: var(--bright); }
+.tab.on { color: var(--bright); }
 .tab:focus-visible, #plus:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 .tab .icon { width: 8px; height: 8px; border-radius: 50%; background: #45464B; flex: none; }
 .tab.working .icon { width: 10px; height: 10px; background: none; border: 1.5px solid var(--c); border-top-color: transparent; }
@@ -60,7 +60,7 @@ kbd { font: 11px var(--mono); }
 .tab .kbd { font: 11px var(--mono); color: var(--digit); }
 .tab .ctx { position: absolute; left: 13px; right: 14px; bottom: 5px; height: 2px; border-radius: 1px; background: #FFFFFF12; overflow: hidden; }
 .tab .ctx i { display: block; height: 100%; background: #FFFFFF40; border-radius: 1px; }
-.tab.an .ctx i { background: var(--c); }
+.tab.on .ctx i { background: var(--c); }
 .tab .ctx.warm i { background: var(--gold); }
 .tab .ctx.hot i { background: var(--glow); }
 /* New artifact: small blue dot after the name */
@@ -157,7 +157,7 @@ kbd { font: 11px var(--mono); }
 .pv-count { flex: none; font: 11px var(--mono); color: var(--muted); }
 #pv-content.text pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.45 var(--mono); color: var(--text); }
 #pv-content.text mark { background: #FFD76A40; color: var(--bright); border-radius: 2px; }
-#pv-content.text mark.an { background: var(--gold); color: var(--gold-deep); }
+#pv-content.text mark.on { background: var(--gold); color: var(--gold-deep); }
 #divider, #pv-divider { flex: 0 0 10px; cursor: col-resize; }
 #divider:hover, #pv-divider:hover, #pv-divider.dragging { background: linear-gradient(90deg, transparent 4px, #FFFFFF22 4px, #FFFFFF22 6px, transparent 6px); }
 #empty { position: absolute; inset: 0; display: grid; place-content: center; margin: 0; color: var(--muted); font-size: 15px; }
@@ -188,8 +188,8 @@ kbd { font: 11px var(--mono); }
 .tool:hover { background: var(--frame); color: var(--bright); }
 .tool:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 .tool svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.tool.an { background: #FF6B4A26; color: var(--glow); }
-#gear.an { background: var(--frame); color: var(--bright); }
+.tool.on { background: #FF6B4A26; color: var(--glow); }
+#gear.on { background: var(--frame); color: var(--bright); }
 .st-list { max-width: 720px; display: flex; flex-direction: column; }
 .st-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 18px 0; border-bottom: 1px solid #FFFFFF0E; }
 .st-row > span { display: flex; flex-direction: column; gap: 3px; }
@@ -280,7 +280,7 @@ kbd { font: 11px var(--mono); }
 }
 #menu input { width: 100%; margin-bottom: 4px; padding: 8px 10px; border: 0; border-radius: 8px; background: #0C0C0C; color: var(--bright); font: 13px var(--sans); outline: none; }
 #menu button { display: block; width: 100%; padding: 7px 10px; border: 0; border-radius: 7px; background: none; text-align: left; font-size: 13px; color: var(--text); }
-#menu button:hover, #menu button.an { background: var(--frame); color: var(--bright); }
+#menu button:hover, #menu button.on { background: var(--frame); color: var(--bright); }
 #menu p { margin: 6px 10px 10px; max-width: 34ch; }
 #menu .danger { background: #FF6B4A; color: #1A0600; font-weight: 600; text-align: center; }
 #menu .danger:hover { background: #FF8466; color: #1A0600; }
@@ -300,7 +300,7 @@ kbd { font: 11px var(--mono); }
 #menu.palette button { display: flex; justify-content: space-between; gap: 16px; padding: 9px 12px; font-size: 14px; }
 #menu.palette button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #menu.palette kbd { color: var(--digit); flex: none; }
-#menu.palette button.an kbd { color: var(--muted); }
+#menu.palette button.on kbd { color: var(--muted); }
 #menu.palette p { color: var(--muted); }
 
 @media (prefers-reduced-motion: no-preference) {
