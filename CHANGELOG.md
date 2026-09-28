@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2
+
+- Diff view: "Ask to commit" puts a commit prompt into the session's queue. It goes out as soon as the
+  session is done. The text is a setting ("Commit prompt", default `commit and push`).
+- README: the architecture diagram no longer cuts off its second lines on GitHub.
+
 ## 1.2.1
 
 - Diff view (`Ctrl+Shift+D`) shows only the files this session edited, read from its Claude transcript.

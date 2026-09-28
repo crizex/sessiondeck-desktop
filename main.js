@@ -25,6 +25,7 @@ const DEFAULTS = {
   projectsRoot: '~', claudeCommand: 'claude', webUrl: '',
   voice: false, notifications: true, fontSize: 14,
   snippets: ['continue', 'run the tests and fix what fails', 'commit and push'],
+  commitPrompt: 'commit and push', // "Ask to commit" in the diff view queues this
 };
 let settings = structuredClone(DEFAULTS);
 function loadSettings() {

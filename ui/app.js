@@ -879,6 +879,7 @@ async function drawSettings() {
       <h2>Sessions</h2>
       ${input('projectsRoot', 'Projects folder', 'On the server. Its subfolders are offered for new sessions.', e.projectsRoot, 'data-name="projectsRoot"')}
       ${input('claudeCommand', 'Claude command', 'Runs in a login shell inside the new tmux session.', e.claudeCommand, 'data-name="claudeCommand"')}
+      ${input('commitPrompt', 'Commit prompt', 'What "Ask to commit" in the diff view queues for the session.', e.commitPrompt, 'data-name="commitPrompt" placeholder="commit and push"')}
       ${input('webUrl', 'Web page', 'Optional. Shown as the first tab (Ctrl+0), for example a web session manager.', e.webUrl, 'data-name="webUrl" placeholder="https://"')}
       <label class="st-row st-block"><span><b>Snippets</b><small>One text per line. In Ctrl+K under "Insert", typed into the prompt without Enter.</small></span>
         <textarea data-name="snippets" rows="4" spellcheck="false"></textarea></label>

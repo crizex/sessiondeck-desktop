@@ -1,4 +1,4 @@
-/* global State, deck, $, area, recall, remember, terms, activeId, view, viewOff, sessionById, titleOf, visibleIds */
+/* global State, deck, $, area, recall, remember, terms, activeId, view, viewOff, sessionById, titleOf, visibleIds, toast */
 // ── Preview next to the terminals: artifacts, images, code, diff, session history ──
 
 const ARTIFACT = /^https:\/\/claude\.ai\/(code\/)?artifact\/[\w-]+/;
@@ -164,7 +164,18 @@ async function diffPreview(id) {
     b.addEventListener('click', ev => { ev.preventDefault(); filePreview(name, 0, id); });
     return b;
   };
-  const parts = [el('p', 'pv-note', `${files.length} changed, ${r.fresh.length} new files${r.all ? ` in ${s.cwd} (no transcript found)` : ' by this session'}${r.truncated ? ' (truncated)' : ''}`)];
+  const head = el('div', 'pv-diff-head');
+  const commit = el('button', 'pv-commit', 'Ask to commit');
+  commit.type = 'button';
+  commit.title = 'Adds the commit prompt from Settings to this session\'s queue';
+  commit.addEventListener('click', async () => {
+    const text = (await deck.settings()).commitPrompt || 'commit and push';
+    try { await deck.call('queue:add', id, text); } catch (e) { return toast(`Not queued: ${e.message}`); }
+    commit.disabled = true; commit.textContent = 'Queued';
+    toast(sessionById(id)?.state === 'working' ? 'Commit queued, goes out when the session is done' : 'Commit goes to the session in a moment');
+  });
+  head.append(el('p', 'pv-note', `${files.length} changed, ${r.fresh.length} new files${r.all ? ` in ${s.cwd} (no transcript found)` : ' by this session'}${r.truncated ? ' (truncated)' : ''}`), commit);
+  const parts = [head];
   for (const f of files) {
     const d = el('details');
     d.open = files.length <= 3;

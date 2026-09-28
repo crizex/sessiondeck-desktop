@@ -111,6 +111,11 @@ kbd { font: 11px var(--mono); }
 #pv-content.image img { max-width: 100%; border-radius: 6px; cursor: zoom-in; }
 #pv-content.image.full img { max-width: none; cursor: zoom-out; }
 .pv-note { color: var(--muted); margin: 16px 4px; }
+.pv-diff-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pv-commit { flex: none; padding: 6px 12px; border: 0; border-radius: 7px; background: var(--gold); color: var(--gold-deep); font: 600 12px var(--sans); }
+.pv-commit:hover { filter: brightness(1.08); }
+.pv-commit:disabled { opacity: .55; filter: none; }
+.pv-commit:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 
 /* Code with line numbers; --lh must match LH in preview.js */
 .pv-code { --lh: 18px; position: relative; display: flex; font: 12px/var(--lh) var(--mono); }

@@ -13,5 +13,6 @@
   "voice": false,
   "notifications": true,
   "fontSize": 14,
-  "snippets": ["continue", "run the tests and fix what fails", "commit and push"]
+  "snippets": ["continue", "run the tests and fix what fails", "commit and push"],
+  "commitPrompt": "commit and push"
 }
