@@ -172,7 +172,7 @@ function contextPercent(s) {
 // Clickable things in terminal text: artifact links, absolute image paths, code paths (optionally with :line).
 const PATTERNS = [
   ['artifact', /https:\/\/claude\.ai\/(?:code\/)?artifact\/[\w-]+/g],
-  ['image', /(?<![\w.:/])\/[\w./@+-]+\.(?:png|jpe?g|gif|webp)\b/gi],
+  ['image', /(?<![\w.:/@+-])\/?(?:[\w@.+-]+\/)*[\w@+-][\w@.+-]*\.(?:png|jpe?g|gif|webp)\b/gi],
   ['file', /(?<![\w./@:-])\/?(?:[\w@.-]+\/)*[\w@-][\w@.-]*\.(?:m?js|cjs|tsx?|jsx|json|css|scss|html|py|md|sh|go|rs|swift|kt|java|ya?ml|toml|sql|php|astro|vue|svelte|txt|conf)(?::(\d+))?(?![\w/])/g],
 ];
 function matches(text) {
@@ -184,6 +184,30 @@ function matches(text) {
     }
   }
   return out.sort((a, b) => a.index - b.index);
+}
+
+// Claude Code wraps long paths in its column view ("path (size)") itself: the next piece sits one line
+// lower in the same column. near(d) returns the line d above (-) or below (+).
+// ponytail: heuristic on the same start column; pieces above must be >= 20 chars (full column width).
+const IMAGE_END = /\.(?:png|jpe?g|gif|webp)$/i;
+function wrappedImage(line, near) {
+  const piece = (l, s) => (l && (s === 0 || l[s - 1] === ' ') ? /^[\w./@+-]+/.exec(l.slice(s))?.[0] : null);
+  const out = [];
+  for (const m of line.matchAll(/(?<![^ ])[\w./@+-]+/g)) {
+    const s = m.index;
+    let below = m[0];
+    for (let d = 1, t; d <= 5 && !IMAGE_END.test(below) && (t = piece(near(d), s)); d++) below += t;
+    // Upwards take the longest join that starts with /
+    let full = below.startsWith('/') ? below : null, front = '';
+    for (let d = -1, t; d >= -5 && (t = piece(near(d), s)) && t.length >= 20 && !IMAGE_END.test(t); d--) {
+      front = t + front;
+      if (front.startsWith('/')) full = front + below;
+    }
+    if (full && full !== m[0] && /^\/[\w./@+-]+$/.test(full) && IMAGE_END.test(full)) {
+      out.push({ kind: 'image', target: full, line: 0, index: s, length: m[0].length });
+    }
+  }
+  return out;
 }
 
 // Split a git diff into files. Drop header lines (index, ---, +++) only before the first hunk,
@@ -268,7 +292,7 @@ function template(line) {
 }
 
 const State = {
-  readPane, snapshot, WAITING_MS, readMenu, option, PALETTE, COMPACT_K, contextPercent, matches, splitDiff, search,
+  readPane, snapshot, WAITING_MS, readMenu, option, PALETTE, COMPACT_K, contextPercent, matches, wrappedImage, splitDiff, search,
   color, title, orderTabs, nextWaiting, notifications, card, newer, backoff, due, POOL_STABLE, template,
 };
 // Also usable in the renderer via <script> (no module there).

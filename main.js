@@ -192,18 +192,24 @@ ipcMain.handle('drop', (_e, name, data) => {
 });
 // Image paths from the terminal: fetch from the server as a data URL for the preview.
 const IMAGE_TYPE = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp' };
-ipcMain.handle('image', async (_e, p) => {
-  const type = IMAGE_TYPE[String(p).split('.').pop().toLowerCase()];
-  if (!type || !String(p).startsWith('/')) throw new Error('not an image');
-  return `data:${type};base64,${(await conn.read(p, 30e6)).toString('base64')}`;
-});
-// Code paths from the terminal: absolute, relative to the session folder or to projectsRoot.
-ipcMain.handle('file', async (_e, p, id) => {
-  p = String(p);
+// Paths from the terminal: absolute, relative to the session folder or to projectsRoot.
+const placesOf = (p, id) => {
   const cwd = sessions.find(x => x.id === id)?.cwd;
   const root = settings.projectsRoot || '~';
-  const places = p.startsWith('/') ? [p] : [cwd && path.posix.join(cwd, p), path.posix.join(root, p)].filter(Boolean);
-  for (const place of places) {
+  return p.startsWith('/') ? [p] : [cwd && path.posix.join(cwd, p), path.posix.join(root, p)].filter(Boolean);
+};
+ipcMain.handle('image', async (_e, p, id) => {
+  p = String(p);
+  const type = IMAGE_TYPE[p.split('.').pop().toLowerCase()];
+  if (!type) throw new Error('not an image');
+  for (const place of placesOf(p, id)) {
+    try { return `data:${type};base64,${(await conn.read(place, 30e6)).toString('base64')}`; } catch (e) { if (e.code !== 2) throw e; }
+  }
+  throw new Error('not found');
+});
+ipcMain.handle('file', async (_e, p, id) => {
+  p = String(p);
+  for (const place of placesOf(p, id)) {
     let buf;
     try { buf = await conn.read(place); } catch (e) { if (e.code === 2) continue; throw e; }
     if (buf.includes(0)) throw new Error('not a text file');

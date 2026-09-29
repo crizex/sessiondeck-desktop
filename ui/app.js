@@ -56,7 +56,8 @@ function terminal(id) {
   // ponytail: column = character index, wide characters before it shift the hit; wrapped links are not detected.
   term.registerLinkProvider({
     provideLinks(y, cb) {
-      const links = previewLinks(term.buffer.active.getLine(y - 1)?.translateToString(true) ?? '', y, id);
+      const line = n => term.buffer.active.getLine(n)?.translateToString(true) ?? '';
+      const links = previewLinks(line(y - 1), y, id, d => line(y - 1 + d));
       cb(links.length ? links : undefined);
     },
   });
@@ -949,9 +950,20 @@ deck.settings().then(e => { if (e.fontSize !== fontSize) setFontSize(e.fontSize)
 
 // ── Update ──────────────────────────────────────────────────────────
 
+// "Remind me tomorrow" holds per version; a newer version shows right away.
+const DAY = 24 * 60 * 60 * 1000;
+let updateVersion = null;
+const updateShow = () => { $('#update').hidden = false; };
 deck.onUpdate(({ version }) => {
-  $('#update-text').textContent = `Version ${version} is ready`;
-  $('#update').hidden = false;
+  updateVersion = version;
+  $('#update-text').textContent = `Version ${version}`;
+  const l = recall('update-later', {});
+  setTimeout(updateShow, l.version === version ? Math.max(0, l.until - Date.now()) : 0);
+});
+$('#update-later').addEventListener('click', () => {
+  remember('update-later', { version: updateVersion, until: Date.now() + DAY });
+  $('#update').hidden = true;
+  setTimeout(updateShow, DAY);
 });
 $('#update-button').addEventListener('click', () => deck.restart());
 

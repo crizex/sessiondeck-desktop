@@ -32,8 +32,11 @@ pvDivider.addEventListener('pointerdown', e => {
 });
 
 // Clickable things in the terminal (link provider in app.js). Column = character index.
-function previewLinks(text, y, id) {
-  return State.matches(text).map(t => ({
+function previewLinks(text, y, id, near = () => '') {
+  const wrapped = State.wrappedImage(text, near);
+  // Matches that are only a piece of a wrapped path give way to the whole path
+  const all = [...wrapped, ...State.matches(text).filter(t => !wrapped.some(u => t.index < u.index + u.length && u.index < t.index + t.length))];
+  return all.map(t => ({
     text: text.substr(t.index, t.length),
     range: { start: { x: t.index + 1, y }, end: { x: t.index + t.length, y } },
     activate: () => openEntry({ kind: t.kind, target: t.target, line: t.line }, id),
@@ -115,7 +118,7 @@ async function imagePreview(p, id) {
   const nr = panelOpen({ kind: 'image', target: p }, id, p);
   note('Loading image');
   try {
-    const img = Object.assign(el('img'), { src: await deck.image(p), alt: p.split('/').pop() });
+    const img = Object.assign(el('img'), { src: await deck.image(p, panelId), alt: p.split('/').pop() });
     if (nr !== pvRun) return;
     img.addEventListener('click', () => pvContent.classList.toggle('full'));
     pvContent.replaceChildren(img);

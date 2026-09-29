@@ -105,6 +105,8 @@ test('matches: artifacts, images and code paths with line, no URLs or versions',
   assert.deepStrictEqual(t('in src/ui/app.js:120 and main.js'), [['file', 'src/ui/app.js', 120], ['file', 'main.js', 0]]);
   assert.deepStrictEqual(t('/srv/x/package.json, done'), [['file', '/srv/x/package.json', 0]]);
   assert.deepStrictEqual(t('https://github.com/a/b/blob/main/app.js example.com version 0.7.2'), []);
+  assert.deepStrictEqual(t('[image] assets/brand/a-b.png (3.4MB)'), [['image', 'assets/brand/a-b.png', 0]]);
+  assert.deepStrictEqual(t('https://x.com/a.png'), []);
   const [a] = z.matches('  > abc.py');
   assert.deepStrictEqual([a.index, a.length], [4, 6]);
 });
@@ -239,4 +241,22 @@ test('template: "folder | prompt", no bar means no prompt', () => {
   assert.deepStrictEqual(z.template('api | run the tests'), { folder: 'api', prompt: 'run the tests' });
   assert.deepStrictEqual(z.template(' web '), { folder: 'web', prompt: '' });
   assert.deepStrictEqual(z.template('a | b | c'), { folder: 'a', prompt: 'b | c' });
+});
+
+// Claude Code wraps long paths in its Read view ("path (size)") itself, the next piece sits in the same column.
+test('wrapped image path is joined, also when the break falls right before a /', () => {
+  const top = '  ›       /tmp/claude-1000/-home-dev-app/c85034ca-bb3b-417c-8a9d-44e27b (156.8K';
+  const full = '/tmp/claude-1000/-home-dev-app/c85034ca-bb3b-417c-8a9d-44e27be9939f/scratchpad/r45/row.png';
+  const lines = [top, '  [image] e9939f/scratchpad/r45/row.png       B)', '', 'Looks right.'];
+  const near = i => d => lines[i + d];
+  assert.deepStrictEqual(z.wrappedImage(lines[0], near(0)).map(t => [t.target, t.index]), [[full, 10]]);
+  assert.deepStrictEqual(z.wrappedImage(lines[1], near(1)).map(t => [t.target, t.index]), [[full, 10]]);
+  // Break right before the slash: no longer link only "/scratchpad/..."
+  const l2 = [top.replace('44e27b ', '44e27be9939f'), '  [image] /scratchpad/r45/row.png'];
+  assert.deepStrictEqual(z.wrappedImage(l2[1], d => l2[1 + d]).map(t => t.target), [full]);
+});
+
+test('wrappedImage leaves single paths and unrelated neighbour lines alone', () => {
+  const lines = ['  › /tmp/a/one.png (1K)', '  › /tmp/b/two.png (1K)', '    short'];
+  for (let i = 0; i < 3; i++) assert.deepStrictEqual(z.wrappedImage(lines[i], d => lines[i + d]), []);
 });

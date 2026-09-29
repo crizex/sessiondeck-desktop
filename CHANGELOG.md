@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0
+
+- Update notice: bigger and easier to spot, top right below the tabs, with a gold glow and the new version
+  in large type. "Remind me tomorrow" hides it for 24 hours; a newer version shows up right away.
+- Image paths in the terminal are clickable when they are relative (`[image] assets/logo.png`), resolved
+  against the session folder, then `projectsRoot`.
+- Long image paths that Claude Code wraps in its Read view are joined again and open as a whole.
+- The empty screen no longer blocks clicks: after closing the last session, the × of an open recap or preview
+  works again. Its hint now centers over the session area instead of running into the preview.
+
 ## 1.3.1
 
 - Highlights work again: the active tab, the selected row in `Ctrl+K` and the `+` menu, the current search hit,

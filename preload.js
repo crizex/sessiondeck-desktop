@@ -16,7 +16,7 @@ contextBridge.exposeInMainWorld('deck', {
   end: id => ipcRenderer.invoke('end', id),
   paste: id => ipcRenderer.invoke('paste', id),
   drop: (name, data) => ipcRenderer.invoke('drop', name, data),
-  image: p => ipcRenderer.invoke('image', p),
+  image: (p, id) => ipcRenderer.invoke('image', p, id),
   file: (p, id) => ipcRenderer.invoke('file', p, id),
   diff: id => ipcRenderer.invoke('diff', id),
   historyText: id => ipcRenderer.invoke('history-text', id),

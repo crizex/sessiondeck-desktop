@@ -160,7 +160,9 @@ kbd { font: 11px var(--mono); }
 #pv-content.text mark.on { background: var(--gold); color: var(--gold-deep); }
 #divider, #pv-divider { flex: 0 0 10px; cursor: col-resize; }
 #divider:hover, #pv-divider:hover, #pv-divider.dragging { background: linear-gradient(90deg, transparent 4px, #FFFFFF22 4px, #FFFFFF22 6px, transparent 6px); }
-#empty { position: absolute; inset: 0; display: grid; place-content: center; margin: 0; color: var(--muted); font-size: 15px; }
+#empty { position: absolute; inset: 0; display: grid; place-content: center; margin: 0; color: var(--muted); font-size: 15px; pointer-events: none; }
+/* Do not cover an open preview, center the hint over the session area only */
+#preview:not([hidden]) ~ #empty { right: calc(var(--pv-width, 46%) + 10px); }
 #empty kbd { font-size: 13px; padding: 1px 7px; border-radius: 5px; background: var(--frame); color: var(--text); }
 .xterm .xterm-viewport { background: transparent !important; }
 
@@ -268,12 +270,22 @@ kbd { font: 11px var(--mono); }
   position: absolute; z-index: 6; top: 54px; left: 50%; transform: translateX(-50%); padding: 8px 16px; border-radius: 999px;
   background: #1A1917F2; box-shadow: 0 0 0 1px #FFFFFF14, 0 12px 40px #000; font-size: 13px; color: var(--text); cursor: pointer;
 }
+/* Update: a gold afterglow, so it does not get lost next to the terminals */
 #update {
-  position: absolute; z-index: 6; left: 22px; bottom: 22px; display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 14px;
-  border-radius: 999px; background: #1A1917F2; box-shadow: 0 0 0 1px #FFFFFF14, 0 12px 40px #000; font-size: 12px;
+  position: absolute; z-index: 6; top: 58px; right: 22px; display: flex; align-items: center; gap: 16px; padding: 12px 12px 12px 20px;
+  border-radius: 20px; background: radial-gradient(120% 160% at 0% 50%, #FFD76A24, transparent 60%), #141311F7; backdrop-filter: blur(20px);
+  box-shadow: 0 0 0 1px #FFD76A40, 0 0 48px #FFD76A26, 0 18px 50px #000;
 }
 #update[hidden] { display: none; }
-#update button { padding: 6px 12px; border: 0; border-radius: 999px; background: var(--gold); color: var(--gold-deep); font-weight: 600; font-size: 12px; }
+#update i { width: 10px; height: 10px; flex: none; border-radius: 50%; background: var(--gold); box-shadow: 0 0 12px var(--gold); }
+#update span { display: grid; gap: 2px; }
+#update small { font: 600 11px var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--gold); }
+#update b { font: 400 24px/1 "Instrument Serif", Georgia, serif; color: var(--bright); }
+#update button { padding: 11px 18px; border: 0; border-radius: 12px; background: var(--gold); color: var(--gold-deep); font-weight: 600; font-size: 14px; transition: transform .2s var(--spring), box-shadow .2s; }
+#update button:hover { transform: translateY(-1px); box-shadow: 0 6px 20px #FFD76A55; }
+#update #update-later { margin-right: -8px; background: none; color: var(--muted); font-weight: 500; }
+#update #update-later:hover { transform: none; box-shadow: none; color: var(--bright); }
+#update button:focus-visible { outline: 2px solid var(--bright); outline-offset: 2px; }
 #menu {
   position: absolute; z-index: 7; min-width: 240px; max-height: 60vh; overflow: auto; padding: 6px; border-radius: 12px;
   background: #151513F7; backdrop-filter: blur(20px); box-shadow: 0 0 0 1px #FFFFFF18, 0 20px 60px #000; -webkit-app-region: no-drag;
@@ -310,6 +322,9 @@ kbd { font: 11px var(--mono); }
   .tab.waiting .icon { animation: breathe 1.8s ease-in-out infinite; }
   #card:not([hidden]) { animation: enter .6s cubic-bezier(.2, .9, .25, 1.1) both; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  #update:not([hidden]) { animation: rise .5s var(--spring); }
+  #update i { animation: breathe 2.4s ease-in-out infinite; }
+  @keyframes rise { from { opacity: 0; transform: translateY(-16px) scale(.96); } }
   @keyframes breathe { 50% { transform: scale(1.35); opacity: .6; } }
   @keyframes enter { from { transform: translate(-50%, 18px) scale(.97); opacity: .3; } }
 }
