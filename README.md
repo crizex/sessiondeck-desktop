@@ -56,7 +56,7 @@ you can answer without hunting for the right terminal.
 | **Broadcast** | `Ctrl+Shift+R` sends one message ("run the tests", "commit and push") to several sessions at once. Snippets are configurable. |
 | **Command palette** | `Ctrl+K` for everything, with fuzzy search. `Ctrl+Alt+C` brings the window forward from anywhere. |
 | **Voice input** | Optional and off by default: dictate into the prompt with `Ctrl+M`, recognized on your own server with faster-whisper. |
-| **Updates** | The Windows installer updates itself from this repository's GitHub Releases, with the SHA-512 checked before anything runs. |
+| **Updates** | The Windows installer and the macOS app update themselves from this repository's GitHub Releases, with the SHA-512 checked before anything runs. |
 
 <p align="center">
   <img src="assets/screenshots/timeline.png" alt="The timeline of a session: rounds as dots, the prompt, Claude's answer and the file edits as diffs" width="100%">
@@ -101,6 +101,24 @@ without admin rights, and keeps itself up to date from new releases.
 The installer is not code signed, so Windows SmartScreen asks once ("More info", then "Run anyway").
 If you prefer, build it yourself from source.
 
+### macOS: app
+
+Download the archive for your Mac from the [releases page](https://github.com/crizex/sessiondeck-desktop/releases):
+`SessionDeck-<version>-mac-arm64.tar.gz` for Apple silicon (M1 and newer), `-mac-x64.tar.gz` for Intel.
+Double-click it and drag `SessionDeck.app` into Applications. The app updates itself from new releases:
+after quitting, it swaps the `.app` and opens the new version.
+
+The app is signed ad hoc, not with an Apple Developer ID, so Gatekeeper blocks the first start.
+Open it once, then allow it under System Settings > Privacy & Security > "Open Anyway"
+(on macOS 14 and older: right-click the app, "Open"). Updates don't ask again.
+
+Shortcuts use `⌘` where Windows uses `Ctrl` (`⌘K`, `⌘1`, `⇧⌘F`); the palette and tooltips show the Mac keys.
+`Ctrl+Tab` stays, because `⌘Tab` belongs to macOS.
+
+<p align="center">
+  <img src="assets/screenshots/macos.png" alt="SessionDeck on macOS: four session tabs next to the traffic lights, the command palette open with Mac shortcuts" width="100%">
+</p>
+
 ### From source (Windows, macOS, Linux)
 
 Requirements: [Node.js](https://nodejs.org) 20 or newer and git.
@@ -118,8 +136,14 @@ Build the Windows installer yourself (on Windows):
 npm run build      # dist/SessionDeck-Setup-<version>.exe
 ```
 
-On macOS and Linux, `npm start` runs the app as is. The self-updater only works in the installed
-Windows app; from source you update with `git pull`.
+Build the macOS app (on a Mac, or on Linux with [rcodesign](https://github.com/indygreg/apple-platform-rs) for the ad hoc signature):
+
+```bash
+npm run build-mac  # dist/SessionDeck-<version>-mac-arm64.tar.gz and -mac-x64.tar.gz
+```
+
+On Linux, `npm start` runs the app as is. The self-updater only works in the installed app
+(Windows, macOS); from source you update with `git pull`.
 
 ## Server setup
 
@@ -164,7 +188,7 @@ set its address as "Web page" in the settings to open it in a tab here (`Ctrl+0`
 ## Configuration
 
 Everything is set in the app under Settings (`Ctrl+,`) and stored in `settings.json` in the app's
-data folder (`%APPDATA%\SessionDeck` on Windows). [`settings.example.json`](settings.example.json)
+data folder (`%APPDATA%\SessionDeck` on Windows, `~/Library/Application Support/SessionDeck` on macOS). [`settings.example.json`](settings.example.json)
 shows every field.
 
 <p align="center">
@@ -213,6 +237,8 @@ a different data folder.
 | `Ctrl+0` | Web page tab |
 | `Ctrl+,` | Settings |
 | `Ctrl+Alt+C` | Bring SessionDeck to the front (global) |
+
+On macOS, read `⌘` for `Ctrl` (`Ctrl+Tab` and the global `⌃⌥C` stay as they are).
 
 ## Security
 
@@ -287,7 +313,7 @@ tmux sessions belong to a user. SessionDeck sees the sessions of the SSH user it
 No, on purpose. Use a key, or an ssh-agent (including Pageant on Windows).
 
 **macOS and Linux?**
-The app runs there from source (`npm start`). Only the ready-made installer and the self-updater are Windows only.
+macOS has a ready-made app (see Install), Linux runs from source (`npm start`).
 
 ## Changelog
 

@@ -13,7 +13,8 @@ const TRANSCRIPT = fs.readFileSync(path.join(__dirname, 'server', 'transcript.py
 // Own data folder (tests, several profiles side by side); otherwise the single-instance lock ends every second start.
 if (process.env.SESSIONDECK_DATA) app.setPath('userData', process.env.SESSIONDECK_DATA);
 if (!app.requestSingleInstanceLock()) app.exit(0);
-app.setAppUserModelId('io.github.crizex.sessiondeck');
+const MAC = process.platform === 'darwin';
+if (!MAC) app.setAppUserModelId('io.github.crizex.sessiondeck');
 
 let win = null, tray = null, quitting = false;
 
@@ -64,20 +65,26 @@ function linkFrom(argv) {
 }
 function jump(id) { show(); if (id) send('jump', id); }
 app.on('second-instance', (_e, argv) => jump(linkFrom(argv)));
+// macOS hands sessiondeck:// links over as an event, on a cold start even before the window exists.
+let linkAtStart = null;
+app.on('open-url', (e, url) => { e.preventDefault(); if (win) jump(linkFrom([url])); else linkAtStart = url; });
+// A click on the Dock icon brings the hidden window back.
+app.on('activate', () => show());
 
 function createWindow() {
   win = new BrowserWindow({
     width: 1400, height: 900, minWidth: 640, minHeight: 400,
     backgroundColor: '#050505', icon: ICON, show: !process.argv.includes('--hidden'),
     titleBarStyle: 'hidden',
-    titleBarOverlay: { color: '#050505', symbolColor: '#A4A4AB', height: 46 },
+    // macOS: traffic lights on the left of the tab bar (app.css .mac #bar), elsewhere window buttons on the right.
+    ...(MAC ? { trafficLightPosition: { x: 16, y: 16 } } : { titleBarOverlay: { color: '#050505', symbolColor: '#A4A4AB', height: 46 } }),
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true, webviewTag: true },
   });
   win.removeMenu();
   win.loadFile(path.join(__dirname, 'ui', 'index.html'));
   win.on('close', e => { if (!quitting) { e.preventDefault(); win.hide(); } });
   win.webContents.setWindowOpenHandler(({ url }) => { if (httpPage(url)) shell.openExternal(url); return { action: 'deny' }; });
-  const first = linkFrom(process.argv);
+  const first = linkFrom(linkAtStart ? [linkAtStart] : process.argv);
   if (first) win.webContents.once('did-finish-load', () => send('jump', first));
 }
 
@@ -107,12 +114,12 @@ conn.on('status', (st, info) => {
   if (st === 'connected') { poll(); checkUpdate(); } else for (const [id] of channels) { channels.delete(id); send('channel-closed', id); }
 });
 
-// ── Updates (GitHub Releases, Windows installer only) ───────────────
+// ── Updates (GitHub Releases, Windows installer or macOS app) ───────
 
 let lastCheck = 0;
 // Returns what the settings view shows: 'current', 'ready' or an error text.
 async function checkUpdate(now = false) {
-  if (!app.isPackaged || process.platform !== 'win32') return { result: 'Only in the installed Windows app' };
+  if (!app.isPackaged || !['win32', 'darwin'].includes(process.platform)) return { result: 'Only in the installed app (Windows, macOS)' };
   if (ready) return { result: 'ready', version: readyVersion };
   if (!now && Date.now() - lastCheck < 5 * 60 * 1000) return null;
   lastCheck = Date.now();
@@ -241,7 +248,8 @@ ipcMain.handle('history-text', (_e, id) => transcript(id).catch(() => screen(ses
 ipcMain.on('copy', (_e, t) => clipboard.writeText(t).catch(e => console.error('copy:', e.message)));
 ipcMain.on('overlay', (_e, dataUrl, count) => {
   if (!win) return;
-  if (process.platform === 'win32') win.setOverlayIcon(dataUrl ? nativeImage.createFromDataURL(dataUrl) : null, count ? `${count} waiting` : '');
+  if (MAC) app.dock.setBadge(count ? String(count) : '');
+  else if (process.platform === 'win32') win.setOverlayIcon(dataUrl ? nativeImage.createFromDataURL(dataUrl) : null, count ? `${count} waiting` : '');
   tray?.setToolTip(count ? `SessionDeck, ${count} waiting` : 'SessionDeck');
 });
 ipcMain.on('restart', () => {
@@ -293,9 +301,9 @@ app.on('web-contents-created', (_e, wc) => {
   if (wc.getType() !== 'webview') return;
   wc.setWindowOpenHandler(({ url }) => { if (httpPage(url)) shell.openExternal(url); return { action: 'deny' }; });
   wc.on('will-navigate', (ev, url) => { if (!allowed(wc, url)) { ev.preventDefault(); if (httpPage(url)) shell.openExternal(url); } });
-  // Ctrl+digit, Ctrl+Tab, Ctrl+, and Ctrl+K also work while focus is inside a page.
+  // Ctrl+digit, Ctrl+Tab, Ctrl+, and Ctrl+K (Cmd on macOS) also work while focus is inside a page.
   wc.on('before-input-event', (ev, i) => {
-    if (i.type !== 'keyDown' || !i.control || i.alt) return;
+    if (i.type !== 'keyDown' || !(MAC ? i.meta || (i.control && i.key === 'Tab') : i.control) || i.alt) return;
     if (/^Digit\d$/.test(i.code) || i.key === 'Tab' || i.key === ',' || i.code === 'KeyK') {
       ev.preventDefault();
       send('shortcut', { code: i.code, key: i.key, shiftKey: i.shift });
@@ -305,6 +313,8 @@ app.on('web-contents-created', (_e, wc) => {
 
 app.whenReady().then(() => {
   loadSettings();
+  // macOS needs an app menu for Cmd+Q and copy/paste in text fields; without a Window/View menu Cmd+M and Cmd+R stay free.
+  if (MAC) Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: 'appMenu' }, { role: 'editMenu' }]));
   conn.settings = settings.connection;
   // claude.ai sits behind a bot check: appear as plain Chrome.
   const ps = session.fromPartition('persist:claude');

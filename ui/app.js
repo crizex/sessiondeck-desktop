@@ -1,5 +1,11 @@
 /* global Terminal, FitAddon, WebglAddon, State, deck, ARTIFACT, preview, previewLinks, artifactNew, sessionText, diffPreview */
 const $ = s => document.querySelector(s);
+// macOS: Cmd instead of Ctrl; keyLabel() rewrites shortcut labels to ⌘ ⇧ ⌥.
+const MAC = deck.mac;
+const keyLabel = t => (MAC ? t.replace(/Ctrl\+Shift\+/g, '⇧⌘').replace(/Ctrl\+/g, '⌘').replace(/Shift\+/g, '⇧').replace(/Alt\+/g, '⌥') : t);
+const isCmd = e => (MAC ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey) && !e.altKey;
+document.documentElement.classList.toggle('mac', MAC);
+if (MAC) for (const b of document.querySelectorAll('[title]')) b.title = keyLabel(b.title);
 const windowEl = $('#window'), tabsEl = $('#tabs'), frame = $('#frame'), area = $('#area'), store = $('#store');
 const cardEl = $('#card'), pill = $('#pill'), banner = $('#banner'), menu = $('#menu');
 // Short message at the top: goes away on its own or on click. Only the connection notice stays.
@@ -81,11 +87,11 @@ function terminal(id) {
     if (ev.type !== 'keydown') return true;
     if (shortcut(ev)) return false;
     // Ctrl+C copies when something is selected, otherwise it goes to Claude as an interrupt.
-    if (ev.ctrlKey && !ev.altKey && ev.code === 'KeyC' && term.hasSelection()) {
+    if (isCmd(ev) && ev.code === 'KeyC' && term.hasSelection()) {
       deck.copy(term.getSelection()); term.clearSelection(); ev.preventDefault(); return false;
     }
     // Ctrl+V and Alt+V: an image goes to the session as a file, otherwise text.
-    if (ev.ctrlKey !== ev.altKey && !ev.shiftKey && ev.code === 'KeyV') { ev.preventDefault(); paste(id); return false; }
+    if ((MAC ? isCmd(ev) : ev.ctrlKey !== ev.altKey) && !ev.shiftKey && ev.code === 'KeyV') { ev.preventDefault(); paste(id); return false; }
     return true;
   });
   terms.set(id, t);
@@ -238,7 +244,7 @@ function drawTabs() {
       b = document.createElement('button');
       b.type = 'button'; b.className = 'tab'; b.dataset.id = id;
       b.innerHTML = '<span class="icon"></span><span class="name"></span><span class="kbd"></span><span class="q" hidden></span><span class="ctx"><i></i></span>';
-      b.addEventListener('click', e => (e.ctrlKey ? splitWith(id) : place(focus, id)));
+      b.addEventListener('click', e => ((MAC ? e.metaKey : e.ctrlKey) ? splitWith(id) : place(focus, id)));
       b.addEventListener('auxclick', e => { if (e.button === 1) splitWith(id); });
       b.addEventListener('contextmenu', e => { e.preventDefault(); askEnd(id, b); });
       b.addEventListener('dblclick', () => rename(id, b));
@@ -577,7 +583,7 @@ tabsEl.addEventListener('drop', e => {
 for (const [side, p] of Object.entries(panes)) {
   const close = document.createElement('button');
   close.className = 'pane-close'; close.textContent = '×'; close.type = 'button';
-  close.title = 'Take out of split (Ctrl+#)';
+  close.title = keyLabel('Take out of split (Ctrl+#)');
   close.setAttribute('aria-label', 'Take out of split');
   close.addEventListener('click', () => closeSide(side));
   p.el.appendChild(close);
@@ -687,7 +693,7 @@ async function startTemplate(line, conf) {
 // Buttons at the top right: everything with a shortcut also works with the mouse.
 function tool(label, svg, run) {
   const b = document.createElement('button');
-  b.type = 'button'; b.className = 'tool'; b.title = label;
+  b.type = 'button'; b.className = 'tool'; b.title = label = keyLabel(label);
   b.setAttribute('aria-label', label.replace(/ \(.*\)$/, ''));
   b.innerHTML = `<svg viewBox="0 0 16 16" aria-hidden="true">${svg}</svg>`;
   b.addEventListener('click', run);
@@ -738,7 +744,7 @@ async function palette() {
       b.type = 'button'; b.setAttribute('role', 'option'); b.setAttribute('aria-selected', i === pick);
       if (i === pick) b.className = 'on';
       b.innerHTML = '<span></span><kbd></kbd>';
-      b.firstChild.textContent = e.text; b.lastChild.textContent = e.hint || '';
+      b.firstChild.textContent = e.text; b.lastChild.textContent = keyLabel(e.hint || '');
       b.addEventListener('click', () => run(e));
       return b;
     }));
@@ -783,7 +789,7 @@ function askEnd(id, anchor) {
 // ── Keyboard shortcuts ──────────────────────────────────────────────
 
 function shortcut(e) {
-  const ctrl = e.ctrlKey && !e.altKey && !e.metaKey;
+  const ctrl = isCmd(e);
   const digit = /^Digit([1-9])$/.exec(e.code);
   let run = null;
   if (ctrl && e.code === 'Digit0' && !e.shiftKey) run = () => webUrl && showView('web');
@@ -793,7 +799,7 @@ function shortcut(e) {
   else if (ctrl && e.code === 'KeyD' && e.shiftKey) run = () => diffPreview(activeId());
   else if (ctrl && digit && !e.shiftKey) run = () => place(focus, order[digit[1] - 1]);
   else if (ctrl && digit && e.shiftKey) run = () => splitWith(order[digit[1] - 1]);
-  else if (ctrl && e.key === 'Tab') run = () => {
+  else if ((ctrl || e.ctrlKey && !e.altKey) && e.key === 'Tab') run = () => { // Cmd+Tab belongs to macOS
     const i = order.indexOf(activeId()), n = order.length;
     place(focus, order[(i + (e.shiftKey ? n - 1 : 1)) % n]);
   };
@@ -854,7 +860,7 @@ function viewOff() {
 
 for (const b of document.querySelectorAll('.tab.fixed')) b.addEventListener('click', () => showView(b.dataset.view));
 // Keys pressed inside an embedded page are sent here by main.js.
-deck.onShortcut(k => shortcut({ ...k, ctrlKey: true, altKey: false, metaKey: false, preventDefault() {} }));
+deck.onShortcut(k => shortcut({ ...k, ctrlKey: !MAC || k.key === 'Tab', altKey: false, metaKey: MAC && k.key !== 'Tab', preventDefault() {} }));
 
 const settingsEl = $('#settings');
 const UPDATE_TEXT = { current: 'You have the latest version.', ready: v => `Version ${v} is downloaded. Restart at the top right.` };
@@ -901,16 +907,16 @@ async function drawSettings() {
       ${input('claudeCommand', 'Claude command', 'Runs in a login shell inside the new tmux session.', e.claudeCommand, 'data-name="claudeCommand"')}
       ${input('commitPrompt', 'Commit prompt', 'What "Ask to commit" in the diff view queues for the session.', e.commitPrompt, 'data-name="commitPrompt" placeholder="commit and push"')}
       ${input('webUrl', 'Web page', 'Optional. Shown as the first tab (Ctrl+0), for example a web session manager.', e.webUrl, 'data-name="webUrl" placeholder="https://"')}
-      <label class="st-row st-block"><span><b>Snippets</b><small>One text per line. In Ctrl+K under "Insert", typed into the prompt without Enter.</small></span>
+      <label class="st-row st-block"><span><b>Snippets</b><small>One text per line. In ${keyLabel('Ctrl+K')} under "Insert", typed into the prompt without Enter.</small></span>
         <textarea data-name="snippets" rows="4" spellcheck="false"></textarea></label>
       <label class="st-row st-block"><span><b>Templates</b><small>One per line: folder | prompt. Shown on top of the + menu, they start a session and send the prompt once it is ready. A relative folder is below the projects folder.</small></span>
         <textarea data-name="templates" rows="3" spellcheck="false" placeholder="api | run the tests and fix what fails"></textarea></label>
     </div>
     <div class="st-list">
       <h2>App</h2>
-      <div class="st-row"><span><b>Updates</b><small id="st-update">Checks on connect and every 30 minutes (installed Windows app only).</small></span>
+      <div class="st-row"><span><b>Updates</b><small id="st-update">Checks on connect and every 30 minutes (installed app only).</small></span>
         <button type="button" class="st-button" id="st-check">Check for updates</button></div>
-      ${toggle('autostart', 'Start with Windows', 'Starts hidden in the tray.', e.autostart, !e.packaged)}
+      ${toggle('autostart', MAC ? 'Open at login' : 'Start with Windows', MAC ? 'Starts when you log in to your Mac.' : 'Starts hidden in the tray.', e.autostart, !e.packaged)}
       ${toggle('notifications', 'Notifications', 'Tells you when a session waits for you.', e.notifications)}
       ${toggle('recapOnEnd', 'Recap when ending', 'The End dialog shows duration, commits and files that are not committed yet.', e.recapOnEnd)}
       ${toggle('voice', 'Voice input', 'Needs the optional voice service on the server, see README. Reload after switching.', e.voice)}

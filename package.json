@@ -1,8 +1,8 @@
 {
   "name": "sessiondeck-desktop",
   "productName": "SessionDeck",
-  "version": "1.4.0",
-  "description": "Every Claude Code session on your server in one desktop window, one tab each",
+  "version": "1.5.0",
+  "description": "Every Claude Code session on your server in one desktop window, one tab each. Windows and macOS",
   "main": "main.js",
   "author": "crizex",
   "license": "MIT",
@@ -15,7 +15,8 @@
   "scripts": {
     "start": "electron .",
     "test": "node --test test/",
-    "build": "electron-builder --win nsis"
+    "build": "electron-builder --win nsis",
+    "build-mac": "sh scripts/build-mac.sh"
   },
   "dependencies": {
     "@xterm/addon-fit": "^0.11.0",
@@ -71,6 +72,12 @@
         "repo": "sessiondeck-desktop"
       }
     ],
-    "npmRebuild": false
+    "npmRebuild": false,
+    "mac": {
+      "target": "dir",
+      "icon": "assets/icon.png",
+      "category": "public.app-category.developer-tools",
+      "identity": null
+    }
   }
 }

@@ -39,6 +39,7 @@ kbd { font: 11px var(--mono); }
 
 /* ── Tabs ── */
 #bar { display: flex; align-items: stretch; padding: 0 140px 0 10px; -webkit-app-region: drag; min-width: 0; }
+.mac #bar { padding: 0 10px 0 84px; } /* room for the traffic lights on the left, no window buttons on the right */
 #bar.dim { opacity: .45; }
 #tabs { position: relative; display: flex; align-items: stretch; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 #tabs::-webkit-scrollbar { display: none; }

@@ -1,6 +1,8 @@
-// Updates from GitHub Releases of crizex/sessiondeck-desktop (Windows installer only).
-// electron-builder publishes latest.yml next to the installer; its sha512 is checked before running it.
+// Updates from GitHub Releases of crizex/sessiondeck-desktop.
+// Windows: electron-builder publishes latest.yml next to the installer; its sha512 is checked before running it.
 // The installer runs silently (NSIS /S), --force-run starts the app again afterwards.
+// macOS: latest-mac-arm64.yml / latest-mac-x64.yml point to a .tar.gz of the app (scripts/build-mac.sh);
+// after quitting, a small shell script swaps the .app bundle and opens it again. No Apple signature needed.
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -9,6 +11,7 @@ const { newer } = require('./state');
 
 const REPO = 'crizex/sessiondeck-desktop';
 const API = `https://api.github.com/repos/${REPO}/releases/latest`;
+const MAC = process.platform === 'darwin';
 
 // The three fields of latest.yml the updater needs. ponytail: flat YAML only, which is what electron-builder writes.
 function parseLatest(yml) {
@@ -25,7 +28,7 @@ async function check(current, fetchFn = fetch) {
   if (!r.ok) throw new Error(`GitHub ${r.status}`);
   const rel = await r.json();
   const asset = name => (rel.assets || []).filter(a => a.name === name)[0]?.browser_download_url;
-  const yml = asset('latest.yml');
+  const yml = asset(MAC ? `latest-mac-${process.arch}.yml` : 'latest.yml');
   if (!yml) return null;
   const y = await fetchFn(yml);
   if (!y.ok) throw new Error(`latest.yml ${y.status}`);
@@ -49,7 +52,11 @@ async function download(info, dir, fetchFn = fetch) {
 }
 
 function install(file) {
-  spawn(file, ['/S', '--force-run'], { detached: true, stdio: 'ignore' }).unref();
+  if (!MAC) return spawn(file, ['/S', '--force-run'], { detached: true, stdio: 'ignore' }).unref();
+  const bundle = path.resolve(process.execPath, '../../..'); // .../SessionDeck.app/Contents/MacOS/SessionDeck
+  spawn('/bin/sh', ['-c', 'while kill -0 "$1" 2>/dev/null; do sleep .3; done; rm -rf "$3" && mkdir "$3" && tar -xzf "$2" -C "$3" '
+    + '&& rm -rf "$4" && mv "$3/SessionDeck.app" "$4" && open "$4"', 'x', String(process.pid), file, `${file}.d`, bundle],
+  { detached: true, stdio: 'ignore' }).unref();
 }
 
 module.exports = { check, download, install, parseLatest, REPO };

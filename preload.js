@@ -5,6 +5,7 @@ const MODULE = /^(voice|live|search|timeline|queue|recap):[\w-]+$/;
 const allowed = c => { if (!MODULE.test(c)) throw new Error(`Channel ${c} not allowed`); return c; };
 
 contextBridge.exposeInMainWorld('deck', {
+  mac: process.platform === 'darwin',
   open: (id, cols, rows) => ipcRenderer.invoke('open', id, cols, rows),
   write: (id, d) => ipcRenderer.send('write', id, d),
   resize: (id, cols, rows) => ipcRenderer.send('resize', id, cols, rows),

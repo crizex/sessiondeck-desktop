@@ -52,7 +52,7 @@ async function broadcast() {
   }
   send.addEventListener('click', go);
   field.addEventListener('input', check);
-  field.addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); go(); } });
+  field.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); go(); } });
 
   const head = el('div', 'bc-head');
   head.append(el('h2', '', 'Broadcast'), all);
@@ -60,7 +60,7 @@ async function broadcast() {
   const cancel = el('button', '', 'Cancel');
   cancel.type = 'button';
   cancel.addEventListener('click', closeMenu);
-  foot.append(el('small', 'bc-tip', 'Ctrl+Enter sends'), cancel, send);
+  foot.append(el('small', 'bc-tip', keyLabel('Ctrl+Enter sends')), cancel, send);
 
   menu.classList.add('palette', 'broadcast');
   menu.replaceChildren(head, field, ...(chips.children.length ? [chips] : []), list, foot);

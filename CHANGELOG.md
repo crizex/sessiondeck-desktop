@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.5.0
+
+- macOS app: ready-made downloads for Apple silicon and Intel on the releases page, signed ad hoc
+  (first start via "Open Anyway", see the README). `npm run build-mac` builds them yourself, also on Linux.
+- On the Mac, shortcuts use `⌘` instead of `Ctrl`; the palette, tooltips and hints show `⌘ ⇧ ⌥`.
+  `Ctrl+Tab` stays, `⌘Tab` belongs to macOS.
+- Traffic lights sit left of the tabs, waiting sessions show as a badge on the Dock icon, a click on the
+  Dock icon brings the window back and `sessiondeck://` links also work on a cold start.
+- The self-updater works on the Mac too: it downloads the archive for your chip, checks the SHA-512 and
+  swaps the `.app` after quitting.
+
 ## 1.4.0
 
 - Update notice: bigger and easier to spot, top right below the tabs, with a gold glow and the new version

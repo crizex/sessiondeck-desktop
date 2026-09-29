@@ -73,7 +73,7 @@ deck.settings().then(conf => {
       for (const w of values) sum += ((w - 128) / 128) ** 2;
       levelEl.style.transform = `scaleX(${Math.min(1, Math.sqrt(sum / values.length) * 4)})`;
       const s = (performance.now() - a.start) / 1000;
-      textEl.textContent = a.text ? tail(a.text) : `${Math.floor(s)} s · click or Ctrl+M stops, Esc cancels`;
+      textEl.textContent = a.text ? tail(a.text) : keyLabel(`${Math.floor(s)} s · click or Ctrl+M stops, Esc cancels`);
       if (s >= MAX_S) return stop();
       requestAnimationFrame(tick);
     };
@@ -152,7 +152,7 @@ deck.settings().then(conf => {
     return () => { if (rec) stop(); else if (!starting) { pressed = Date.now(); start(); } };
   });
   document.addEventListener('keyup', e => {
-    if (e.code !== 'KeyM' && e.key !== 'Control') return;
+    if (e.code !== 'KeyM' && e.key !== 'Control' && e.key !== 'Meta') return;
     if (pressed && Date.now() - pressed > HOLD_MS) { if (starting) lateStop = true; else stop(); }
     pressed = null;
   }, true);

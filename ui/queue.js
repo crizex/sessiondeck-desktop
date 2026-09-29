@@ -83,12 +83,12 @@ function queueMenu(id) {
     field.value = '';
     await deck.call('queue:pool', text, onlyHere.checked ? s.cwd : null, start.checked).catch(e => toast(`Not queued: ${e.message}`));
   });
-  field.addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); go(); } });
+  field.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); go(); } });
   const close = el('button', '', 'Close');
   close.type = 'button';
   close.addEventListener('click', closeMenu);
   const foot = el('div', 'buttons');
-  foot.append(el('small', 'bc-tip', 'Ctrl+Enter adds'), close, free, add);
+  foot.append(el('small', 'bc-tip', keyLabel('Ctrl+Enter adds')), close, free, add);
 
   const open = !menu.hidden && menu.dataset.queue === id;
   const draft = open ? menu.querySelector('textarea')?.value : '';
