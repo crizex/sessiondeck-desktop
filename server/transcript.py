@@ -185,6 +185,26 @@ def recap(cwd, lines):
             'answer': next((r['answer'] for r in reversed(rs) if r['answer']), '')}
 
 
+def last_html(lines):
+    """Path of the last file edit if it was an HTML file (the session is building a draft), else None"""
+    last = None
+    for line in lines:
+        if '"tool_use"' not in line:
+            continue
+        try:
+            d = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(d, dict) or d.get('isSidechain') or d.get('type') != 'assistant':
+            continue
+        for b in (d.get('message') or {}).get('content') or []:
+            if isinstance(b, dict) and b.get('type') == 'tool_use' and b.get('name') in ('Edit', 'MultiEdit', 'Write'):
+                path = (b.get('input') or {}).get('file_path')
+                if isinstance(path, str):
+                    last = path
+    return last if last and last.lower().endswith(('.html', '.htm')) else None
+
+
 def main():
     cwd = sys.argv[1]
     samples = [p for p in base64.b64decode(sys.argv[2]).decode('utf-8', 'replace').split('\n') if p] if len(sys.argv) > 2 else []
@@ -200,6 +220,9 @@ def main():
     lines = tail(pick, MAX_READ).split('\n')
     if os.path.getsize(pick) > MAX_READ:
         lines = lines[1:]  # first line is cut
+    if len(sys.argv) > 3 and sys.argv[3] == 'html':
+        sys.stdout.write(json.dumps(last_html(lines)))
+        return
     if len(sys.argv) > 3 and sys.argv[3] == 'touched':
         sys.stdout.write('\n'.join(dict.fromkeys(f['path'] for r in rounds(lines) for f in r['files'])))
         return

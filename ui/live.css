@@ -26,7 +26,13 @@
 .live-device.phone > .live-frame { padding: 9px; border-radius: 40px; background: #121212;
   box-shadow: inset 0 0 0 1px #FFFFFF22, 0 0 0 1px #000, 0 18px 50px #000C; }
 .live-device.phone webview { border-radius: 31px; overflow: hidden; }
-.live-size { margin-top: 6px; font: 11px/1 var(--mono); color: var(--muted); }
+.live-size { margin-top: 6px; padding: 3px 8px; border: 0; border-radius: 6px; background: none; font: 11px/1 var(--mono); color: var(--muted); }
+.live-size:hover { background: var(--frame); color: var(--bright); }
+.live-size:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+/* Foldable open: hint at the crease in the middle, nothing important belongs there */
+.live-device.fold-open > .live-frame { border-radius: 26px; }
+.live-device.fold-open webview { border-radius: 18px; }
+.live-device.fold-open > .live-frame::after { content: ""; position: absolute; top: 9px; bottom: 9px; left: 50%; width: 2px; margin-left: -1px; background: linear-gradient(#0000, #00000059 20%, #00000059 80%, #0000); pointer-events: none; }
 
 .live-error { position: absolute; inset: 0; display: grid; place-content: center; margin: 0; padding: 20px; text-align: center;
   background: #0C0C0CF2; color: var(--text); font: 13px/1.45 var(--sans); }

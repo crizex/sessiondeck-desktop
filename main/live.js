@@ -74,7 +74,14 @@ function suggest(pkgText) {
   return port ? `http://localhost:${port}/` : '';
 }
 
-module.exports = ({ ipcMain, conn, q, send, sessionById }) => {
+module.exports = ({ ipcMain, conn, q, send, sessionById, transcript, fs, path }) => {
+  // Did the session last write an HTML file (a draft)? Then serve its folder and show that page.
+  const DRAFT = fs.readFileSync(path.join(__dirname, '..', 'server', 'draft.py'), 'utf8');
+  ipcMain.handle('live:draft', async (_e, id) => {
+    const file = await transcript(id, 'html').then(JSON.parse).catch(() => null);
+    return file ? JSON.parse(await conn.exec(`python3 -c ${q(DRAFT)} ${q(file)}`)) : null;
+  });
+
   // Own SSH connection: sshd allows 10 channels per connection, the browser and terminals need many.
   let second = null;
   const connection = () => second ??= new Promise((ok, no) => {
@@ -120,9 +127,9 @@ module.exports = ({ ipcMain, conn, q, send, sessionById }) => {
   let watcher = null, round = 0;
   const stop = () => { round++; watcher?.end(); watcher = null; };
   ipcMain.handle('live:stop', stop);
-  ipcMain.handle('live:watch', async (_e, id) => {
+  ipcMain.handle('live:watch', async (_e, id, root) => {
     stop();
-    const nr = round, cwd = sessionById(id).cwd;
+    const nr = round, cwd = root || sessionById(id).cwd;
     const ch = await exec(`exec python3 -u -c ${q(WATCHER)} ${q(cwd)}`);
     if (nr !== round) return ch.end();
     watcher = ch;

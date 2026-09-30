@@ -1,7 +1,11 @@
 /* global deck, $, activeId, sessionById, panelOpen, pvContent, previewEl, el, note, extra, recall, remember, pvRun, errorText, tool, withSession */
 // ── Live preview: the session's web page as desktop and phone, reloads as soon as a file changes ──
 
-const DESKTOP_W = 1280, PHONE = { w: 390, h: 844 }, BEZEL = 9, HEAD = 26, GAP = 12;
+// Phone sizes to cycle through; a foldable closed and open (crease in the middle)
+const DEVICES = { phone: { w: 390, h: 844, name: 'Phone' }, 'fold-closed': { w: 466, h: 678, name: 'Foldable closed' }, 'fold-open': { w: 890, h: 626, name: 'Foldable open' } };
+const deviceKey = () => (DEVICES[recall('live-device', 'phone')] ? recall('live-device', 'phone') : 'phone');
+const PHONE = () => DEVICES[deviceKey()];
+const DESKTOP_W = 1280, BEZEL = 9, HEAD = 26, GAP = 12;
 const PHONE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1';
 let live = null; // { id, nr, stage, status, ro }
 
@@ -16,17 +20,24 @@ function button(text, run, title) {
   return b;
 }
 
-// The address is remembered per project folder; the first time the app asks for it.
-function livePreview(id, ask = false) {
+// The address is remembered per project folder. Without one: if the session last wrote an HTML file,
+// show that draft, otherwise ask for the address.
+async function livePreview(id, ask = false) {
   const s = sessionById(id);
   if (!s?.cwd) return;
   const address = liveAddresses()[s.cwd];
-  if (ask || !address) return askAddress(s, address || '');
+  if (ask) return askAddress(s, address || '');
   liveStop();
-  liveOpen(s, address, panelOpen({ kind: 'live', target: s.cwd }, id, 'Live preview'));
+  const nr = panelOpen({ kind: 'live', target: s.cwd }, id, 'Live preview');
+  if (address) return liveOpen(s, address, nr);
+  note('Looking for an HTML draft of this session');
+  const d = await deck.call('live:draft', id).catch(() => null);
+  if (nr !== pvRun) return;
+  if (d) return liveOpen(s, `http://localhost:${d.port}/${encodeURIComponent(d.file)}`, nr, d.root);
+  askAddress(s, '');
 }
 
-async function liveOpen(s, address, nr) {
+async function liveOpen(s, address, nr, root) {
   note('Connecting');
   let r;
   try { r = await deck.call('live:open', address); } catch (e) {
@@ -40,7 +51,7 @@ async function liveOpen(s, address, nr) {
   if (nr !== pvRun) return;
   $('#pv-title').textContent = `Live · ${r.address}`;
   build(s, r, nr);
-  deck.call('live:watch', s.id).catch(e => { if (live?.nr === nr) live.status.textContent = `Not watching: ${errorText(e)}`; });
+  deck.call('live:watch', s.id, root).catch(e => { if (live?.nr === nr) live.status.textContent = `Not watching: ${errorText(e)}`; });
 }
 
 // Address for the session folder, suggestion from package.json.
@@ -117,8 +128,24 @@ function device(kind, r) {
   const frame = el('div', 'live-frame');
   frame.append(w, error);
   box.append(frame);
-  if (kind === 'phone') box.append(el('span', 'live-size', `${PHONE.w} × ${PHONE.h}`));
+  if (kind === 'phone') {
+    const size = button('', () => {
+      const k = Object.keys(DEVICES);
+      remember('live-device', k[(k.indexOf(deviceKey()) + 1) % k.length]);
+      showSize(box);
+      fit();
+    }, 'Switch device: phone, foldable closed, foldable open');
+    size.className = 'live-size';
+    box.append(size);
+    showSize(box);
+  }
   return box;
+}
+
+function showSize(box) {
+  const d = PHONE();
+  box.classList.toggle('fold-open', deviceKey() === 'fold-open');
+  box.querySelector('.live-size').textContent = `${d.name} · ${d.w} × ${d.h}`;
 }
 
 // Sizes from the stage; the zoom turns the width into the wanted CSS width of the page.
@@ -134,10 +161,10 @@ function fit() {
   st.classList.toggle('stacked', stacked);
   let dh = H, ph = H, pmax = W;
   if (stacked) { dh = Math.min(H * 0.55, W * 0.625 + HEAD); ph = H - dh - GAP; } else if (m === 'both') pmax = W * 0.42;
-  const ps = Math.max(0.2, Math.min(1, (ph - 2 * BEZEL - 20) / PHONE.h, (pmax - 2 * BEZEL) / PHONE.w));
-  if (m !== 'desktop') setSize(p, PHONE.w * ps, PHONE.h * ps, ps);
+  const P = PHONE(), ps = Math.max(0.2, Math.min(1, (ph - 2 * BEZEL - 20) / P.h, (pmax - 2 * BEZEL) / P.w));
+  if (m !== 'desktop') setSize(p, P.w * ps, P.h * ps, ps);
   if (m !== 'phone') {
-    const dw = stacked || m === 'desktop' ? W : W - (PHONE.w * ps + 2 * BEZEL) - GAP;
+    const dw = stacked || m === 'desktop' ? W : W - (P.w * ps + 2 * BEZEL) - GAP;
     setSize(d, dw - 2, dh - HEAD - 2, (dw - 2) / DESKTOP_W);
   }
 }

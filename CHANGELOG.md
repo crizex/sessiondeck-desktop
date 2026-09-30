@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.0
+
+- Live preview: a click on the size below the phone cycles through phone (390 × 844), foldable closed
+  (466 × 678) and foldable open (890 × 626). Open, a line marks the crease, where nothing important belongs.
+  The choice is remembered.
+- Live preview shows HTML drafts: without a saved address, if the session last wrote an `.html` file, the app
+  serves its folder with `python3 -m http.server` (only on `127.0.0.1` of the server, one per folder) and opens
+  the file. It reloads as soon as the draft changes. Otherwise it asks for the address as before.
+
 ## 1.5.1
 
 - The tab bar no longer stays empty when the SSH session on the server has no UTF-8 locale. tmux then
