@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.1
+
+- The tab bar no longer stays empty when the SSH session on the server has no UTF-8 locale. tmux then
+  printed the separator between name, start time and folder as `_`, so no session was recognized.
+
 ## 1.5.0
 
 - macOS app: ready-made downloads for Apple silicon and Intel on the releases page, signed ad hoc

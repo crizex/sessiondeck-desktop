@@ -9,8 +9,10 @@ def tmux(*args):
 
 
 out = []
-for line in tmux('list-sessions', '-F', '#{session_name}\t#{session_created}\t#{pane_current_path}').splitlines():
-    parts = line.split('\t')
+# Colon, not tab: without a UTF-8 locale tmux prints tabs as "_". Session names never contain ":"
+# (tmux replaces it), so splitting twice leaves colons in the path intact.
+for line in tmux('list-sessions', '-F', '#{session_name}:#{session_created}:#{pane_current_path}').splitlines():
+    parts = line.split(':', 2)
     if len(parts) != 3:
         continue
     name, created, cwd = parts
