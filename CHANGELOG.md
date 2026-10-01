@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.7.0
+
+**Messages between sessions**
+- New button with a speech bubble (and in `Ctrl+K`): shows what the current session exchanged with other sessions
+  through `SendMessage`. Incoming with the sender's name, outgoing in gold, newest on top. Read from the transcript,
+  nothing to install.
+
+**5-hour limit**
+- Your Claude.ai usage at the top right: percent and a thin bar, warm from 70 %, hot from 90 %. A click shows the
+  reset time, the weekly share and which sessions are paused.
+- The numbers come from Claude Code's status line: `server/statusline.sh` now also writes them to
+  `~/.claude/sessiondeck-usage.json`. No extra API calls, no tokens. Copy the updated script to the server.
+
+**Limit pause**
+- New setting "Limit pause" (off by default): at the percent you set, every working session stops
+  (Escape, background agents included). Once the limit has reset, each one gets a note to continue where it was.
+  Only once per limit window, so whatever you start afterwards may use the rest.
+- In the limit menu: "Pause all working sessions now" (asks once more) and "Send paused sessions on".
+- The prompt queue sends nothing to a paused session.
+- Same state file as sessiondeck 1.2.0 on the server, so both show the same paused sessions.
+
 ## 1.6.0
 
 - Live preview: a click on the size below the phone cycles through phone (390 × 844), foldable closed

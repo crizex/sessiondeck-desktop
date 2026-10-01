@@ -29,6 +29,7 @@ const DEFAULTS = {
   commitPrompt: 'commit and push', // "Ask to commit" in the diff view queues this
   templates: [], // "folder | prompt" per line, see State.template
   recapOnEnd: true, // short recap in the End dialog
+  limitPause: 0, // percent of the 5-hour limit at which working sessions stop until the reset, 0 = off
 };
 let settings = structuredClone(DEFAULTS);
 function loadSettings() {
@@ -286,7 +287,7 @@ ipcMain.handle('status', () => [conn.status, conn.info]);
 
 // Feature modules in main/<name>.js; their channels are "<name>:<what>" (see preload.js).
 const context = { ipcMain, conn, q, send, app, session, fs, path, sessionById, transcript, createSession, settings: () => settings, sessionsNow: () => sessions };
-for (const m of ['voice', 'live', 'search', 'timeline', 'queue', 'recap']) require(`./main/${m}`)(context);
+for (const m of ['voice', 'live', 'search', 'timeline', 'limit', 'queue', 'recap', 'messages']) require(`./main/${m}`)(context);
 
 // ── Start ───────────────────────────────────────────────────────────
 

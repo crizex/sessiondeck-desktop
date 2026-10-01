@@ -1,0 +1,15 @@
+/* 5-hour limit at the top right */
+.limit { display: flex; flex-direction: column; justify-content: center; gap: 3px; height: 30px; margin-right: 6px; padding: 0 9px; border: 0; border-radius: 8px; background: none; color: var(--muted); font: 11px var(--mono); font-variant-numeric: tabular-nums; }
+.limit[hidden] { display: none; }
+.limit:hover { background: var(--frame); color: var(--bright); }
+.limit:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.limit-bar { display: block; width: 44px; height: 2px; border-radius: 1px; background: #FFFFFF1A; overflow: hidden; }
+.limit-bar i { display: block; height: 100%; background: #FFFFFF59; }
+.limit.warm { color: var(--gold); }
+.limit.warm i { background: var(--gold); }
+.limit.hot, .limit.paused { color: #FF6B4A; } /* fixed: --glow follows the color of the active tab */
+.limit.hot i, .limit.paused i { background: #FF6B4A; }
+.lm-title { margin: 4px 10px 6px; font: 600 14px var(--sans); color: var(--bright); }
+.lm-row { display: flex; justify-content: space-between; gap: 24px; padding: 3px 10px; font-size: 13px; color: var(--muted); }
+.lm-row b { max-width: 26ch; font-weight: 500; color: var(--bright); text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+#menu .lm-small { max-width: 34ch; font-size: 12px; color: var(--muted); }

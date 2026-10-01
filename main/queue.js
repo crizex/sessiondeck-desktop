@@ -2,7 +2,7 @@
 // Kept in a file next to the settings, so it survives a restart of the app.
 const State = require('../state');
 
-module.exports = ({ ipcMain, conn, app, fs, path, send, sessionsNow, createSession, settings }) => {
+module.exports = ({ ipcMain, conn, app, fs, path, send, sessionsNow, createSession, settings, limitPaused = () => new Set() }) => {
   const FILE = path.join(app.getPath('userData'), 'queue.json');
   // queue: { id: { texts: [], since, at } }; under POOL the prompts for the next free session: texts = [{ text, folder, startAt }]
   const POOL = '*', START_MS = 120000;
@@ -68,7 +68,7 @@ module.exports = ({ ipcMain, conn, app, fs, path, send, sessionsNow, createSessi
       }
       if (gone) changed();
       const texts = Object.fromEntries(Object.entries(queue).filter(([id, e]) => id !== POOL && !(Date.now() < e.at)).map(([id, e]) => [id, e.texts]));
-      const r = State.due(memo, sessions, texts, new Set(), Date.now(), queue[POOL]?.texts || []);
+      const r = State.due(memo, sessions, texts, limitPaused(), Date.now(), queue[POOL]?.texts || []);
       memo = r.memo;
       for (const x of r.send) {
         try {

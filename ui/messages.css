@@ -1,0 +1,8 @@
+/* Messages between sessions, newest on top */
+#pv-content.messages { display: flex; flex-direction: column; gap: 10px; padding: 14px; }
+.msg { max-width: 88%; padding: 9px 12px 10px; border-radius: 10px; background: #FFFFFF0D; }
+.msg.out { align-self: flex-end; background: #FFD76A14; box-shadow: inset 0 0 0 1px #FFD76A2E; }
+.msg-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 4px; font: 11px var(--mono); color: var(--muted); }
+.msg-who { color: var(--bright); overflow-wrap: anywhere; }
+.msg.out .msg-who { color: var(--gold); }
+.msg-text { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }

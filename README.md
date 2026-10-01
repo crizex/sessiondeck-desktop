@@ -52,6 +52,8 @@ you can answer without hunting for the right terminal.
 | **Preview panel** | File paths, images, diffs and claude.ai artifact links in the terminal are clickable and open next to the session, with syntax highlighting. `Ctrl+Shift+D` shows the uncommitted changes this session made, even when several sessions share a folder. "Ask to commit" queues a commit prompt for the session. |
 | **Prompt queue** | `Ctrl+Shift+Q` lines up the next prompts for a session. They go out one at a time as soon as it is done, never into a running turn or an open question. The tab shows how many are waiting. "To next free" hands a prompt to whichever session in the folder has time first; if none is free after two minutes, SessionDeck starts a new one for it. |
 | **Recap** | `Ctrl+Shift+B` sums up what a session did: duration, prompts, tool calls, tokens, its commits, the files it changed with +/- and what is not committed yet. A short version shows up when you end a session. |
+| **Messages between sessions** | When sessions talk to each other (`SendMessage`), the speech bubble button shows the conversation of the current session: what came in from whom, what went out, newest on top. |
+| **5-hour limit** | Your Claude.ai usage at the top right, warm from 70 %, hot from 90 %, with the reset time and the weekly share. The optional limit pause stops every working session at a percent you choose and sends it on after the reset, so nothing breaks off in the middle of an edit. Also by hand, from the same menu. |
 | **Templates** | "folder \| prompt" lines in the settings show up on top of the `+` menu. One click starts a session there and sends the prompt once Claude is ready. |
 | **Broadcast** | `Ctrl+Shift+R` sends one message ("run the tests", "commit and push") to several sessions at once. Snippets are configurable. |
 | **Command palette** | `Ctrl+K` for everything, with fuzzy search. `Ctrl+Alt+C` brings the window forward from anywhere. |
@@ -169,6 +171,11 @@ ssh you@your-server 'chmod +x ~/.claude/statusline.sh'
 #   "statusLine": { "type": "command", "command": "~/.claude/statusline.sh" }
 ```
 
+The same status line also keeps your 5-hour and weekly usage in `~/.claude/sessiondeck-usage.json`
+(Claude.ai subscriptions only, read from the data Claude Code already has, no extra API calls). That file feeds the
+limit display at the top right. Without it, the display stays hidden. If you keep your own status line, copy the
+line that writes this file into it.
+
 **Voice input.** Speech recognition runs on your server with
 [faster-whisper](https://github.com/SYSTRAN/faster-whisper) as a small systemd service without network access,
 behind a unix socket that only the SSH user can reach. Install it as root:
@@ -212,6 +219,7 @@ shows every field.
 | Commit prompt | `commit and push` | What "Ask to commit" in the diff view queues, for example `commit, push and deploy`. |
 | Templates | empty | One per line, `folder \| prompt`, for example `api \| run the tests and fix what fails`. |
 | Recap when ending | on | Short recap in the End dialog. |
+| Limit pause | `0` (off) | At this share of the 5-hour limit, working sessions stop (Escape, background agents too) and get a note to continue once the limit has reset. Needs the status line above. Runs while the app is open; for a pause that also works with the app closed, use it in sessiondeck on the server instead and leave this at `0`. |
 
 For several profiles side by side, or tests, start the app with `SESSIONDECK_DATA=<folder>` to use
 a different data folder.

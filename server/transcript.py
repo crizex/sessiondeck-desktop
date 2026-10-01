@@ -1,6 +1,6 @@
 # Runs on the server (python3 -c, sent by the app): the Claude transcript of a session as readable text.
 # Arguments: cwd of the session, samples (base64, lines from the visible screen, to find the right file
-# when several sessions share a folder), optionally a mode: "rounds" (timeline), "touched" (diff), "recap".
+# when several sessions share a folder), optionally a mode: "rounds" (timeline), "touched" (diff), "recap", "messages", "html".
 import base64, glob, json, os, re, subprocess, sys
 
 MAX_READ = 30_000_000  # only read the end of very large transcripts
@@ -185,6 +185,43 @@ def recap(cwd, lines):
             'answer': next((r['answer'] for r in reversed(rs) if r['answer']), '')}
 
 
+INCOMING = re.compile(r'<cross-session-message from="([^"]*)"(?: from-name="([^"]*)")?[^>]*>\s*(.*?)\s*</cross-session-message>', re.S)
+
+
+def messages(lines):
+    """Messages between sessions: incoming ones are in the transcript as queued_command or user text,
+    outgoing ones as SendMessage calls."""
+    out, seen = [], set()
+    for line in lines:
+        if 'cross-session-message' not in line and '"SendMessage"' not in line:
+            continue
+        try:
+            d = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(d, dict) or d.get('isSidechain'):
+            continue
+        texts = [(d.get('attachment') or {}).get('prompt')]
+        content = (d.get('message') or {}).get('content')
+        if d.get('type') == 'user':
+            texts += [content] if isinstance(content, str) else [b.get('text') for b in content or [] if isinstance(b, dict)]
+        for t in texts:
+            for m in INCOMING.finditer(t if isinstance(t, str) else ''):
+                if m.group(0) not in seen:  # the same message is there as attachment and as user text
+                    seen.add(m.group(0))
+                    out.append({'time': d.get('timestamp'), 'dir': 'in', 'who': m.group(2) or m.group(1), 'text': m.group(3)[:4000]})
+        if d.get('type') == 'assistant' and isinstance(content, list):
+            for b in content:
+                if isinstance(b, dict) and b.get('type') == 'tool_use' and b.get('name') == 'SendMessage':
+                    e = b.get('input') or {}
+                    out.append({'time': d.get('timestamp'), 'dir': 'out', 'who': str(e.get('to', '')), 'text': str(e.get('message', ''))[:4000]})
+    # Replies go to the sender's socket address: show its name instead
+    names = {m.group(1): m.group(2) for m in map(INCOMING.match, seen) if m and m.group(2)}
+    for n in out:
+        n['who'] = names.get(n['who'], n['who'])
+    return out[-200:]
+
+
 def last_html(lines):
     """Path of the last file edit if it was an HTML file (the session is building a draft), else None"""
     last = None
@@ -225,6 +262,9 @@ def main():
         return
     if len(sys.argv) > 3 and sys.argv[3] == 'touched':
         sys.stdout.write('\n'.join(dict.fromkeys(f['path'] for r in rounds(lines) for f in r['files'])))
+        return
+    if len(sys.argv) > 3 and sys.argv[3] == 'messages':
+        sys.stdout.write(json.dumps(messages(lines), ensure_ascii=False))
         return
     if len(sys.argv) > 3 and sys.argv[3] == 'recap':
         sys.stdout.write(json.dumps(recap(cwd, lines), ensure_ascii=False))

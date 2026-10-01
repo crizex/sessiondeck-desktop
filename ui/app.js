@@ -918,6 +918,7 @@ async function drawSettings() {
         <button type="button" class="st-button" id="st-check">Check for updates</button></div>
       ${toggle('autostart', MAC ? 'Open at login' : 'Start with Windows', MAC ? 'Starts when you log in to your Mac.' : 'Starts hidden in the tray.', e.autostart, !e.packaged)}
       ${toggle('notifications', 'Notifications', 'Tells you when a session waits for you.', e.notifications)}
+      ${input('limitPause', 'Limit pause', 'At this share of the 5-hour limit (percent) working sessions stop and go on after the reset. 0 = off. Needs the status line from server/statusline.sh. If sessiondeck on the server runs the pause, leave this at 0.', e.limitPause, 'data-name="limitPause" type="number" min="0" max="100" placeholder="0"')}
       ${toggle('recapOnEnd', 'Recap when ending', 'The End dialog shows duration, commits and files that are not committed yet.', e.recapOnEnd)}
       ${toggle('voice', 'Voice input', 'Needs the optional voice service on the server, see README. Reload after switching.', e.voice)}
       <label class="st-row"><span><b>Terminal font size</b><small>Applies to all sessions at once.</small></span>
@@ -936,7 +937,7 @@ settingsEl.addEventListener('submit', async e => {
 settingsEl.addEventListener('change', e => {
   const n = e.target.dataset.name;
   if (!n) return;
-  const value = n === 'fontSize' ? Number(e.target.value)
+  const value = n === 'fontSize' ? Number(e.target.value) : n === 'limitPause' ? State.limitPercent(e.target.value)
     : n === 'snippets' || n === 'templates' ? e.target.value.split('\n').map(t => t.trim()).filter(Boolean)
       : e.target.type === 'checkbox' ? e.target.checked : e.target.value.trim();
   deck.setting(n, value);

@@ -291,9 +291,15 @@ function template(line) {
   return i < 0 ? { folder: line.trim(), prompt: '' } : { folder: line.slice(0, i).trim(), prompt: line.slice(i + 1).trim() };
 }
 
+// Limit pause setting: a percent from 1 to 100, anything else means off (0).
+function limitPercent(v) {
+  const n = Math.round(Number(v));
+  return n >= 1 && n <= 100 ? n : 0;
+}
+
 const State = {
   readPane, snapshot, WAITING_MS, readMenu, option, PALETTE, COMPACT_K, contextPercent, matches, wrappedImage, splitDiff, search,
-  color, title, orderTabs, nextWaiting, notifications, card, newer, backoff, due, POOL_STABLE, template,
+  color, title, orderTabs, nextWaiting, notifications, card, newer, backoff, due, POOL_STABLE, template, limitPercent,
 };
 // Also usable in the renderer via <script> (no module there).
 if (typeof module === 'object') module.exports = State; else window.State = State;
