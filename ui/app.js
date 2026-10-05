@@ -1,4 +1,4 @@
-/* global Terminal, FitAddon, WebglAddon, State, deck, ARTIFACT, preview, previewLinks, artifactNew, sessionText, diffPreview */
+/* global Terminal, FitAddon, WebglAddon, Unicode11Addon, State, deck, ARTIFACT, preview, previewLinks, artifactNew, sessionText, diffPreview */
 const $ = s => document.querySelector(s);
 // macOS: Cmd instead of Ctrl; keyLabel() rewrites shortcut labels to ⌘ ⇧ ⌥.
 const MAC = deck.mac;
@@ -67,6 +67,9 @@ function terminal(id) {
       cb(links.length ? links : undefined);
     },
   });
+  // Count emoji as two columns like Claude Code does, otherwise the status line leaves stray characters when redrawn.
+  term.loadAddon(new Unicode11Addon.Unicode11Addon());
+  term.unicode.activeVersion = '11';
   const fit = new FitAddon.FitAddon();
   term.loadAddon(fit);
   const el = document.createElement('div');

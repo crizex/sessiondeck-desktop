@@ -1,7 +1,7 @@
 {
   "name": "sessiondeck-desktop",
   "productName": "SessionDeck",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Every Claude Code session on your server in one desktop window, one tab each. Windows and macOS",
   "main": "main.js",
   "author": "crizex",
@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@xterm/addon-fit": "^0.11.0",
+    "@xterm/addon-unicode11": "^0.9.0",
     "@xterm/addon-webgl": "^0.19.0",
     "@xterm/xterm": "^6.0.0",
     "highlight.js": "^11.12.0",

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.1
+
+- Terminal: emoji now take two columns, the same width Claude Code assumes. Before, the status line could show
+  stray characters or shifted text after a redraw when it contained emoji.
+
 ## 1.7.0
 
 **Messages between sessions**
