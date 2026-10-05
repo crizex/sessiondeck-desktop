@@ -107,6 +107,8 @@ test('matches: artifacts, images and code paths with line, no URLs or versions',
   assert.deepStrictEqual(t('https://github.com/a/b/blob/main/app.js example.com version 0.7.2'), []);
   assert.deepStrictEqual(t('[image] assets/brand/a-b.png (3.4MB)'), [['image', 'assets/brand/a-b.png', 0]]);
   assert.deepStrictEqual(t('https://x.com/a.png'), []);
+  assert.deepStrictEqual(t('see /home/me/Projekte-Müller/logs/a-b.md and img/Grüße.png'),
+    [['file', '/home/me/Projekte-Müller/logs/a-b.md', 0], ['image', 'img/Grüße.png', 0]]);
   const [a] = z.matches('  > abc.py');
   assert.deepStrictEqual([a.index, a.length], [4, 6]);
 });

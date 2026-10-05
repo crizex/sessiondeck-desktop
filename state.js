@@ -172,8 +172,8 @@ function contextPercent(s) {
 // Clickable things in terminal text: artifact links, absolute image paths, code paths (optionally with :line).
 const PATTERNS = [
   ['artifact', /https:\/\/claude\.ai\/(?:code\/)?artifact\/[\w-]+/g],
-  ['image', /(?<![\w.:/@+-])\/?(?:[\w@.+-]+\/)*[\w@+-][\w@.+-]*\.(?:png|jpe?g|gif|webp)\b/gi],
-  ['file', /(?<![\w./@:-])\/?(?:[\w@.-]+\/)*[\w@-][\w@.-]*\.(?:m?js|cjs|tsx?|jsx|json|css|scss|html|py|md|sh|go|rs|swift|kt|java|ya?ml|toml|sql|php|astro|vue|svelte|txt|conf)(?::(\d+))?(?![\w/])/g],
+  ['image', /(?<![\p{L}\p{N}_.:/@+-])\/?(?:[\p{L}\p{N}_@.+-]+\/)*[\p{L}\p{N}_@+-][\p{L}\p{N}_@.+-]*\.(?:png|jpe?g|gif|webp)\b/giu],
+  ['file', /(?<![\p{L}\p{N}_./@:-])\/?(?:[\p{L}\p{N}_@.-]+\/)*[\p{L}\p{N}_@-][\p{L}\p{N}_@.-]*\.(?:m?js|cjs|tsx?|jsx|json|css|scss|html|py|md|sh|go|rs|swift|kt|java|ya?ml|toml|sql|php|astro|vue|svelte|txt|conf)(?::(\d+))?(?![\p{L}\p{N}_/])/gu],
 ];
 function matches(text) {
   const out = [];
@@ -191,9 +191,9 @@ function matches(text) {
 // ponytail: heuristic on the same start column; pieces above must be >= 20 chars (full column width).
 const IMAGE_END = /\.(?:png|jpe?g|gif|webp)$/i;
 function wrappedImage(line, near) {
-  const piece = (l, s) => (l && (s === 0 || l[s - 1] === ' ') ? /^[\w./@+-]+/.exec(l.slice(s))?.[0] : null);
+  const piece = (l, s) => (l && (s === 0 || l[s - 1] === ' ') ? /^[\p{L}\p{N}_./@+-]+/u.exec(l.slice(s))?.[0] : null);
   const out = [];
-  for (const m of line.matchAll(/(?<![^ ])[\w./@+-]+/g)) {
+  for (const m of line.matchAll(/(?<![^ ])[\p{L}\p{N}_./@+-]+/gu)) {
     const s = m.index;
     let below = m[0];
     for (let d = 1, t; d <= 5 && !IMAGE_END.test(below) && (t = piece(near(d), s)); d++) below += t;
@@ -203,7 +203,7 @@ function wrappedImage(line, near) {
       front = t + front;
       if (front.startsWith('/')) full = front + below;
     }
-    if (full && full !== m[0] && /^\/[\w./@+-]+$/.test(full) && IMAGE_END.test(full)) {
+    if (full && full !== m[0] && /^\/[\p{L}\p{N}_./@+-]+$/u.test(full) && IMAGE_END.test(full)) {
       out.push({ kind: 'image', target: full, line: 0, index: s, length: m[0].length });
     }
   }

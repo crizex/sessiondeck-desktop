@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.2
+
+- Terminal: paths with umlauts or other non-ASCII letters (for example `Projekte-Müller/notes.md`) are now
+  clickable as a whole. Before, the link started only after the first such letter and pointed nowhere.
+
 ## 1.7.1
 
 - Terminal: emoji now take two columns, the same width Claude Code assumes. Before, the status line could show
