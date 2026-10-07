@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.3
+
+- New session menu (`+`) and command palette (`Ctrl+K`): every project folder is listed now. Before, the menu stopped
+  after 40 folders and the palette after 12 entries, so later projects were only reachable by typing their name.
+- Both lists scroll, and the search field stays at the top while you scroll.
+
 ## 1.7.2
 
 - Terminal: paths with umlauts or other non-ASCII letters (for example `Projekte-Müller/notes.md`) are now

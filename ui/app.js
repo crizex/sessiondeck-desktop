@@ -662,7 +662,7 @@ $('#plus').addEventListener('click', async e => {
   const buttons = document.createElement('div');
   const draw = () => {
     const f = field.value.toLowerCase();
-    const hits = list.filter(p => p.toLowerCase().includes(f)).slice(0, 40);
+    const hits = list.filter(p => p.toLowerCase().includes(f));
     if (!hits.length && /^[/~]/.test(field.value.trim())) hits.push(field.value.trim());
     buttons.replaceChildren(...hits.map((p, i) => {
       const b = document.createElement('button');
@@ -740,7 +740,7 @@ async function palette() {
   list.setAttribute('role', 'listbox');
   let hits = [], pick = 0;
   const draw = () => {
-    hits = State.search(entries, field.value).slice(0, 12);
+    hits = State.search(entries, field.value);
     pick = Math.min(pick, Math.max(0, hits.length - 1));
     list.replaceChildren(...hits.map((e, i) => {
       const b = document.createElement('button');

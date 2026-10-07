@@ -291,6 +291,8 @@ kbd { font: 11px var(--mono); }
   position: absolute; z-index: 7; min-width: 240px; max-height: 60vh; overflow: auto; padding: 6px; border-radius: 12px;
   background: #151513F7; backdrop-filter: blur(20px); box-shadow: 0 0 0 1px #FFFFFF18, 0 20px 60px #000; -webkit-app-region: no-drag;
 }
+/* Search field stays on top while a long list scrolls; the shadow covers the edge in menu color */
+#menu > input { position: sticky; top: 0; z-index: 1; box-shadow: 0 0 0 8px #151513; }
 #menu input { width: 100%; margin-bottom: 4px; padding: 8px 10px; border: 0; border-radius: 8px; background: #0C0C0C; color: var(--bright); font: 13px var(--sans); outline: none; }
 #menu button { display: block; width: 100%; padding: 7px 10px; border: 0; border-radius: 7px; background: none; text-align: left; font-size: 13px; color: var(--text); }
 #menu button:hover, #menu button.on { background: var(--frame); color: var(--bright); }
