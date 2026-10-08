@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.4
+
+- Long questions from AskUserQuestion now arrive in full. The terminal wraps a long question over several lines,
+  and only the last line ended up in the question card (for example just "are online?").
+
 ## 1.7.3
 
 - New session menu (`+`) and command palette (`Ctrl+K`): every project folder is listed now. Before, the menu stopped

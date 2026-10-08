@@ -170,7 +170,7 @@ const PROMPT = '─'.repeat(40);
 test('readPane: working, asking, context and artifact', () => {
   const working = z.readPane(`> fix it\n✽ Ionizing\u2026 (1m 24s · ↓ 6.7k tokens)\n${PROMPT}\n> \n${PROMPT}\nOpus | 42% ctx (84k/200k)`);
   assert.deepStrictEqual([working.working, working.asking, working.contextPct, working.tokensK, working.windowK], [true, false, 42, 84, 200]);
-  const asking = z.readPane(`Done: https://claude.ai/artifact/abc-1\nDo you want to proceed?\n❯ 1. Yes\n  2. No\n\nEnter to confirm`);
+  const asking = z.readPane(`Done: https://claude.ai/artifact/abc-1\n\nDo you want to proceed?\n❯ 1. Yes\n  2. No\n\nEnter to confirm`);
   assert.strictEqual(asking.asking, true);
   assert.deepStrictEqual(asking.question, { text: 'Do you want to proceed?', options: [{ n: 1, text: 'Yes', free: false }, { n: 2, text: 'No', free: false }] });
   assert.strictEqual(asking.artifact, 'https://claude.ai/artifact/abc-1');
@@ -261,4 +261,9 @@ test('wrapped image path is joined, also when the break falls right before a /',
 test('wrappedImage leaves single paths and unrelated neighbour lines alone', () => {
   const lines = ['  › /tmp/a/one.png (1K)', '  › /tmp/b/two.png (1K)', '    short'];
   for (let i = 0; i < 3; i++) assert.deepStrictEqual(z.wrappedImage(lines[i], d => lines[i + d]), []);
+});
+
+test('a wrapped question arrives in full', () => {
+  const p = z.readPane(' ☐ Guest access\n\nShould the router send guests to the page automatically as soon as they\nare online?\n\n❯ 1. Yes\n  2. No\n\nEnter to select\n');
+  assert.strictEqual(p.question.text, 'Should the router send guests to the page automatically as soon as they are online?');
 });
