@@ -264,7 +264,10 @@ function readMenu(text) {
 function option(o) {
   const m = /^\[(.)\]\s*(.*)$/.exec(o.text);
   const text = m ? m[2] : o.text;
-  return { n: o.n, text, box: !!m, checked: m?.[1] === '✔', free: !!o.free || (!!m && /^Type something\.?$/.test(text)) };
+  const r = { n: o.n, text, box: !!m, checked: m?.[1] === '✔', free: !!o.free || (!!m && /^Type something\.?$/.test(text)) };
+  const description = o.description || o.info; // text under the option (AskUserQuestion); older servers called it info
+  if (description) r.description = description;
+  return r;
 }
 
 // ── Prompt queue ────────────────────────────────────────────────────

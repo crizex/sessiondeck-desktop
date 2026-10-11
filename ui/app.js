@@ -452,19 +452,21 @@ function drawCard() {
   const multi = cardOptions.some(o => o.box);
   ticks = multi ? new Set(cardOptions.filter(o => o.checked).map(o => o.n)) : null;
   cardEl.classList.toggle('multi', multi);
+  cardEl.classList.toggle('with-info', cardOptions.some(o => o.description));
   $('#card-question').textContent = s.question.text;
   $('#card-free').hidden = true;
-  const button = (text, key, run) => {
+  const button = (text, key, run, info) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.innerHTML = '<span></span><kbd></kbd>';
     b.firstChild.textContent = text;
     b.lastChild.textContent = key;
+    if (info) b.appendChild(document.createElement('small')).textContent = info;
     b.addEventListener('click', run);
     return b;
   };
   $('#card-options').replaceChildren(...cardOptions.map(o => {
-    const b = button(o.free ? 'Your own answer' : o.text, o.n, () => answer(o));
+    const b = button(o.free ? 'Your own answer' : o.text, o.n, () => answer(o), o.description);
     if (o.box) b.dataset.n = o.n;
     return b;
   }), ...(multi ? [button('Next', 'Enter', next)] : []));

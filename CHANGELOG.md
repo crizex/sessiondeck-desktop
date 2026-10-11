@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.0
+
+- Question card: when an AskUserQuestion option has a description, it is shown under the option. Options with
+  descriptions are stacked vertically so the text has room. Needs a server that sends the description with each option.
+
 ## 1.7.4
 
 - Long questions from AskUserQuestion now arrive in full. The terminal wraps a long question over several lines,

@@ -164,6 +164,8 @@ test('option: checkbox and free text', () => {
   assert.deepStrictEqual(z.option({ n: 3, text: '[✔] Cherry', free: false }), { n: 3, text: 'Cherry', box: true, checked: true, free: false });
   assert.deepStrictEqual(z.option({ n: 4, text: '[ ] Type something', free: false }), { n: 4, text: 'Type something', box: true, checked: false, free: true });
   assert.deepStrictEqual(z.option({ n: 1, text: 'Yes', free: false }), { n: 1, text: 'Yes', box: false, checked: false, free: false });
+  assert.deepStrictEqual(z.option({ n: 2, text: 'Red', free: false, description: 'Warm' }), { n: 2, text: 'Red', box: false, checked: false, free: false, description: 'Warm' });
+  assert.strictEqual(z.option({ n: 2, text: 'Red', free: false, info: 'Warm' }).description, 'Warm');
 });
 
 const PROMPT = '─'.repeat(40);
