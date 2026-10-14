@@ -74,6 +74,8 @@ kbd { font: 11px var(--mono); }
   -webkit-app-region: no-drag; flex: none;
 }
 #plus:hover { background: var(--frame); color: var(--bright); }
+/* Free space to drag the window, kept even when the bar is full; the tabs shrink and scroll instead */
+#grip { flex: 1 0 40px; }
 
 /* ── Terminal area ── */
 #area { position: relative; display: flex; gap: 0; padding: 0 10px 10px; min-height: 0; }
@@ -186,7 +188,8 @@ kbd { font: 11px var(--mono); }
 .view.webpage { padding: 0; overflow: hidden; }
 .view.webpage webview { width: 100%; height: 100%; }
 #gear { padding: 0 9px; }
-#tools { display: flex; align-items: center; gap: 2px; margin-left: auto; padding-right: 4px; -webkit-app-region: no-drag; }
+#tools { display: flex; align-items: center; gap: 2px; padding-right: 4px; }
+#tools > * { -webkit-app-region: no-drag; }
 .tool { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; background: none; color: var(--muted); }
 .tool:hover { background: var(--frame); color: var(--bright); }
 .tool:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }

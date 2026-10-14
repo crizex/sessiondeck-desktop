@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.1
+
+- The title bar always keeps a free strip of at least 40 px between `+` and the tools, so the window can be grabbed
+  and moved even when many tabs fill the bar. The tabs get narrower and scroll instead. The small gaps between the
+  tool buttons can be used to drag the window too.
+
 ## 1.8.0
 
 - Question card: when an AskUserQuestion option has a description, it is shown under the option. Options with
